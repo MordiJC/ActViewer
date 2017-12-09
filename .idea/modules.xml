@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/act-viewer.iml" filepath="$PROJECT_DIR$/.idea/modules/act-viewer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/act-viewer_main.iml" filepath="$PROJECT_DIR$/.idea/modules/act-viewer_main.iml" group="act-viewer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/act-viewer_test.iml" filepath="$PROJECT_DIR$/.idea/modules/act-viewer_test.iml" group="act-viewer" />
+    </modules>
+  </component>
+</project>

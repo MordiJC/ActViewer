@@ -1,0 +1,15 @@
+group 'io.github.mordijc'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.9'
+}
