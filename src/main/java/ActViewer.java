@@ -47,7 +47,6 @@ public class ActViewer {
                         .withValuesSeparatedBy(".")
                         .describedAs("Level1.Level2.Level3....")
                         .withValuesConvertedBy(new ActLocationPathValueConverter())
-                        new DateConverter()
                         .ofType(String.class);
 
                 // Table of contents mode.
