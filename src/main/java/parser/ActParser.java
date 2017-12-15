@@ -1,6 +1,8 @@
 package parser;
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ActParser {
     public ActParser() {
@@ -16,7 +18,18 @@ public class ActParser {
         try {
             bufferedReader.mark(1024);
 
-            while ()
+            Pattern chapterPattern = Pattern.compile(CHAPTER_REGEXP_PATTERN);
+            Pattern chapterWithNumberPAttern = Pattern.compile(CHAPTER_WITH_NUMBER_REGEXP_PATTERN);
+
+            Matcher patternMatcher;
+
+            while((line = bufferedReader.readLine()) != null) {
+                patternMatcher = chapterPattern.matcher(line);
+
+                if(patternMatcher.matches()) { // The beginning of chapter
+                    int chapterNumber = romanToInteger(patternMatcher.group(_)); // Chapter number
+                }
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,5 +56,7 @@ public class ActParser {
 
     private static final int BUFFER_SIZE = 1024;
     private static final String CHAPTER_REGEXP_PATTERN
-            = "^\\s*(?i)((?:ROZ)?(?:DZIAŁ))\\s(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))\\s*$";
+            = "^\\s*(?i)((?:ROZ)?(?:DZIAŁ))\\s*[A-Za-z]+\\s*$";
+    private static final String CHAPTER_WITH_NUMBER_REGEXP_PATTERN =
+            "^\\s*(?i)((?:ROZ)?(?:DZIAŁ))\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))\\s*$";
 }
