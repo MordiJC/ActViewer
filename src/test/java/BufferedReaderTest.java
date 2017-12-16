@@ -24,6 +24,5 @@ public class BufferedReaderTest {
         System.out.println(bufferedReader2.readLine());
 
         System.out.println(bufferedReader.readLine());
-
     }
 }
