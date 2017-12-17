@@ -8,10 +8,10 @@ public class SectionBuilder {
     private String sectionName = "";
     private String sectionIdentifier = "";
     private String content = "";
-    private List<Section> childrenSections = new ArrayList<>();
+    private List<ActElement> childrenActElements = new ArrayList<>();
 
-    public Section build() {
-        return new Section(title, sectionName, sectionIdentifier, content);
+    public ActElement build() {
+        return new ActElement(title, sectionName, sectionIdentifier, content);
     }
 
     public SectionBuilder content(String content) {
@@ -34,8 +34,8 @@ public class SectionBuilder {
         return this;
     }
 
-    public SectionBuilder childrenSections(List<Section> childrenSections) {
-        this.childrenSections = childrenSections;
+    public SectionBuilder childrenSections(List<ActElement> childrenActElements) {
+        this.childrenActElements = childrenActElements;
         return this;
     }
 }

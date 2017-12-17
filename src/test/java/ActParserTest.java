@@ -17,4 +17,13 @@ public class ActParserTest {
 
         parser.parse(constitution);
     }
+
+    @Test
+    public void uokikChaptersTest(){
+        File uokik = new File(getClass().getClassLoader().getResource("uokik.txt").getFile());
+
+        ActParser parser = new ActParser();
+
+        parser.parse(uokik);
+    }
 }

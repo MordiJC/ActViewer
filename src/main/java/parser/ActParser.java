@@ -1,7 +1,7 @@
 package parser;
 
-import container.Section;
-import container.SectionBuilder;
+import container.ActElement;
+import parser.actparserutils.PreambleUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,15 +14,15 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ActParser {
+    private static final String CHAPTER_REGEXP_PATTERN =
+            "^\\s*(?i)(ROZDZIA[Łł])\\s*(\\d+)\\s*$";
 
-    private static final int BUFFER_SIZE = 1024;
-    private static final String CHAPTER_REGEXP_PATTERN
-            = "^\\s*(?i)((?:ROZ)?(?:DZIAŁ))\\s*[A-Za-z]+\\s*$";
-    private static final String CHAPTER_WITH_NUMBER_REGEXP_PATTERN =
-            "^\\s*(?i)((?:ROZ)?(?:DZIAŁ))\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))\\s*$";
+    private static final String SECTION_REGEXP_PATTERN =
+            "^\\s*(?i)(DZIA[Łł])\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))\\s*$";
+
     public static Logger logger = Logger.getLogger("ActParser");
 
-    public Section parse(File inputFile) {
+    public ActElement parse(File inputFile) {
         FileReader fileReader = openFileForReadingAndHandleErrors(inputFile);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
@@ -32,112 +32,93 @@ public class ActParser {
                 .filter(line -> !line.matches("^(\\u00A9Kancelaria Sejmu.*)|(\\d{4}-\\d{2}-\\d{2})|(Dz\\.U\\..*)|(.)$"))
                 .collect(Collectors.toList());
 
-        List<List<String>> chapters = splitIntoChaptersList(filteredLines);
+        List<List<List<String>>> sections = splitIntoSectionsWithChaptersList(filteredLines);
 
-        List<Section> sections = createSectionsStructure(chapters);
+        List<ActElement> finalListOfActElements = createSectionsStructure(sections);
 
-        Section rootSection = new Section();
+        ActElement rootActElement = new ActElement();
 
-        rootSection.setChildrenSections(sections);
+        rootActElement.setChildrenActElements(finalListOfActElements);
 
         logger.log(Level.INFO, "Parsing of file succeeded: " + inputFile.getAbsolutePath());
 
         return null;
     }
 
-    private List<Section> createSectionsStructure(List<List<String>> chapters) {
-        List<Section> sections = new ArrayList<>();
+    // TODO: naprawic
+    private List<ActElement> createSectionsStructure(List<List<List<String>>> sections) {
+        List<ActElement> subsectionsList = new ArrayList<>();
 
-        if (chapters.size() == 0) {
-            return sections;
+        if (sections.size() == 0) {
+            return subsectionsList;
         }
 
-        Section preamble = getPreambleIfPresentOrNull(chapters);
+        if (sections.size() == 1) {
+            List<List<String>> currentSection = sections.get(0);
 
-        if (preamble != null) {
-            sections.add(preamble);
+            PreambleUtils.addPreambleIfPresent(currentSection, subsectionsList);
+
+            PreambleUtils.removePreambleFromCurrentSectionIfPresent(currentSection);
+
+            List<ActElement> chapters = parseChapters();
+
+            subsectionsList.addAll(chapters);
+        } else {
+
         }
 
-        for (List<String> chapter : chapters) {
-            String title;
-            String sectionName;
-            String sectionIdentifier;
+        return subsectionsList;
+    }
 
-            title = "";
+    private List<List<List<String>>> splitIntoSectionsWithChaptersList(List<String> filteredLines) {
+        List<List<String>> sections = splitIntoSections(filteredLines);
+
+        List<List<List<String>>> sectionsWithChapters = splitSectionsIntoChapters(sections);
+
+        return sectionsWithChapters;
+    }
+
+    private List<List<List<String>>> splitSectionsIntoChapters(List<List<String>> sections) {
+        List<List<List<String>>> sectionsWithChapters = new ArrayList<>();
+        List<List<String>> currentSection = new ArrayList<>();
+
+        for (List<String> section : sections) {
+            splitSectionIntoChapters(currentSection, section);
         }
+        return sectionsWithChapters;
+    }
+
+    private void splitSectionIntoChapters(List<List<String>> currentSection, List<String> section) {
+        List<String> currentChapter = new ArrayList<>();
+        for (String line : section) {
+            if (line.matches(CHAPTER_REGEXP_PATTERN)) {
+                addSublistIfNotEmpty(currentSection, currentChapter);
+            }
+            currentChapter.add(line);
+        }
+        addSublistIfNotEmpty(currentSection, currentChapter);
+    }
+
+    private List<List<String>> splitIntoSections(List<String> filteredLines) {
+        List<List<String>> sections = new ArrayList<>();
+        List<String> currentChapter = new ArrayList<>();
+
+        // split by sections
+        for (String line : filteredLines) {
+            if (line.matches(SECTION_REGEXP_PATTERN)) {
+                addSublistIfNotEmpty(sections, currentChapter);
+                currentChapter = new ArrayList<>();
+            }
+            currentChapter.add(line);
+        }
+        addSublistIfNotEmpty(sections, currentChapter);
 
         return sections;
     }
 
-    private Section getPreambleIfPresentOrNull(List<List<String>> chapters) {
-
-        List<String> preambleLines = getLinesIfPreambleOrNull(chapters);
-
-        if (preambleLines == null) {
-            return null;
-        }
-
-        String preambleTitle = new StringBuilder()
-                .append(preambleLines.get(0))
-                .append(' ')
-                .append(preambleLines.get(1))
-                .toString();
-
-        String preambleContent = joinBrokenWordsAndJoinIntoOneString(preambleLines);
-
-        Section preamble = new SectionBuilder()
-                .title(preambleTitle)
-                .sectionName("Preambuła")
-                .content(preambleContent)
-                .build();
-
-        return preamble;
-    }
-
-    private List<String> getLinesIfPreambleOrNull(List<List<String>> chapters) {
-        return chapters.stream()
-                .filter(chapter -> chapter.size() >= 2
-                        && chapter.get(0).equalsIgnoreCase("KONSTYTUCJA")
-                        && chapter.get(1).equalsIgnoreCase("RZECZYPOSPOLITEJ POLSKIEJ"))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private String joinBrokenWordsAndJoinIntoOneString(List<String> preambleLines) {
-        List<String> linesPreparedForWordBreakJoining = prepareLinesForWordBreakJoining(preambleLines);
-
-        return String.join(" ", linesPreparedForWordBreakJoining)
-                .replace("-\n", "");
-    }
-
-    private List<String> prepareLinesForWordBreakJoining(List<String> preambleLines) {
-        return preambleLines.subList(2, preambleLines.size())
-                .stream()
-                .map(line -> line.replaceAll("\\-$", "-\n"))
-                .collect(Collectors.toList());
-    }
-
-    private List<List<String>> splitIntoChaptersList(List<String> filteredLines) {
-        List<List<String>> chapters = new ArrayList<>();
-        List<String> currentChapter = new ArrayList<>();
-
-        for (String line : filteredLines) {
-
-            if (line.matches(CHAPTER_WITH_NUMBER_REGEXP_PATTERN)) {
-                addChapterIfNotEmpty(chapters, currentChapter);
-                currentChapter = new ArrayList<>();
-            }
-
-            currentChapter.add(line);
-        }
-        addChapterIfNotEmpty(chapters, currentChapter);
-
-        return chapters;
-    }
-
-    private void addChapterIfNotEmpty(List<List<String>> chapters, List<String> currentChapter) {
-        if (currentChapter != null || currentChapter.size() != 0) {
-            chapters.add(currentChapter);
+    private void addSublistIfNotEmpty(List<List<String>> mainList, List<String> sublist) {
+        if (sublist != null || sublist.size() != 0) {
+            mainList.add(sublist);
         }
     }
 
