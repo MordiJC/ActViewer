@@ -10,11 +10,30 @@ import java.util.List;
  * @since 1.0
  */
 public class ActElement {
-
+    /**
+     * Title of act element.
+     */
     public final String title;
-    public final String sectionIdentifier;
-    public final String sectionName;
+
+    /**
+     * Identifier of element.
+     * E.g. "135", "XVI", "3)", "a)".
+     */
+    public final String identifier;
+    /**
+     * Type name of element.
+     * E.g. "Rodział", "DZIAŁ"
+     */
+    public final String typeName;
+
+    /**
+     * Content of element.
+     */
     public final String content;
+
+    /**
+     * List of child <code>ActElement</code> instances.
+     */
     private List<ActElement> childrenActElements = new ArrayList<>();
 
     /**
@@ -28,18 +47,17 @@ public class ActElement {
     }
 
     /**
-     * Creates new <code>ActElement</code> instance using given title,  section name and identifier.
-     * ActElement name examples: "135", "XVI", "3)", "a)".
+     * Creates new <code>ActElement</code> instance using given title, section name and identifier.
      *
-     * @param title             title of section.
-     * @param sectionName       name of section.
-     * @param sectionIdentifier identifier of section.
+     * @param title      title of section.
+     * @param typeName   type name of section.
+     * @param identifier identifier of element.
      * @since 1.0
      */
-    public ActElement(String title, String sectionName, String sectionIdentifier, String content) {
+    public ActElement(String title, String typeName, String identifier, String content) {
         this.title = title;
-        this.sectionName = sectionName;
-        this.sectionIdentifier = sectionIdentifier;
+        this.typeName = typeName;
+        this.identifier = identifier;
         this.content = content;
     }
 
