@@ -18,7 +18,7 @@ public class ActParser {
             "^\\s*(?i)(ROZDZIA[Łł])\\s*(\\d+)\\s*$";
 
     private static final String SECTION_REGEXP_PATTERN =
-            "^\\s*(?i)(DZIA[Łł])\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))\\s*$";
+            "^\\s*(?i)(DZIA[Łł])\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))([a-zA-Z])?\\s*$";
 
     public static Logger logger = Logger.getLogger("ActParser");
 
