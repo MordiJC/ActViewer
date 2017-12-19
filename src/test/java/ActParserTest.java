@@ -22,5 +22,4 @@ public class ActParserTest {
 
         parser.parse(uokik);
     }
-
 }

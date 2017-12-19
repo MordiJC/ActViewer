@@ -10,8 +10,11 @@ public class ActElementBuilder {
     private String content = "";
     private List<ActElement> childrenActElements = new ArrayList<>();
 
-    public ActElement build() {
-        return new ActElement(title, typeName, identifier, content);
+    public ActElement build()
+    {
+        ActElement result = new ActElement(title, typeName, identifier, content);
+        result.setChildrenActElements(childrenActElements);
+        return result;
     }
 
     public ActElementBuilder content(String content) {
@@ -34,7 +37,7 @@ public class ActElementBuilder {
         return this;
     }
 
-    public ActElementBuilder childrenSections(List<ActElement> childrenActElements) {
+    public ActElementBuilder childrenElements(List<ActElement> childrenActElements) {
         this.childrenActElements = childrenActElements;
         return this;
     }
