@@ -1,7 +1,10 @@
 package parser;
 
 import container.ActElement;
-import parser.actparserutils.SectionParser;
+import container.ActElementBuilder;
+import parser.actutils.ChapterParser;
+import util.Lists;
+import util.Strings;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,16 +17,16 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ActParser {
-    public static final String CHAPTER_REGEXP_PATTERN =
-            "^\\s*(?i)(ROZDZIA[Łł])\\s*(\\d+)\\s*$";
+    private static final String CHAPTER_REGEXP_PATTERN =
+            "^\\s*(?i)(ROZDZIA[Łł])\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$";
 
-    public static final String SECTION_REGEXP_PATTERN =
+    private static final String SECTION_REGEXP_PATTERN =
             "^\\s*(?i)(DZIA[Łł])\\s*(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))([a-zA-Z])?\\s*$";
 
     private static String INCORRECT_LINES_REGEXP_PATTERN =
-            "^(\\u00A9Kancelaria Sejmu.*)|(\\d{4}-\\d{2}-\\d{2})|(Dz\\.U\\..*)|(.)$";
+            "^(\\u00A9Kancelaria Sejmu.*)|(\\d{4}-\\d{2}-\\d{2})|(Dz\\.U\\..*)|(?:.)$";
 
-    public static Logger logger = Logger.getLogger("ActParser");
+    private static Logger logger = Logger.getLogger("ActParser");
 
     private List<String> removeIncorrectLines(List<String> lines) {
         return lines.stream()
@@ -39,39 +42,63 @@ public class ActParser {
 
         List<String> filteredLines = removeIncorrectLines(bufferedReader.lines().collect(Collectors.toList()));
 
-        List<List<String>> sections = splitIntoSections(filteredLines);
+        if (filteredLines.get(0).equalsIgnoreCase("ustawa")) {
+            rootActElementBuilder
+                    .typeName(filteredLines.get(0))
+                    .title(filteredLines.get(1) + "\n" + filteredLines.get(2));
 
-        List<ActElement> actElements = new SectionParser().parseAll(sections);
+            List<String> actLines = filteredLines.subList(3, filteredLines.size());
 
-        ActElement rootActElement = new ActElement();
+            List<List<String>> sections =
+                    Lists.splitIncludingDelimiterAsFirstElement(actLines, e -> e.matches(SECTION_REGEXP_PATTERN));
 
-        rootActElement.setChildrenActElements(actElements);
+            sections.forEach(section -> {
+                section.forEach(System.out::println);
+                System.out.println("\n--------------------------------------------------\n");
+            });
 
-        logger.log(Level.INFO, "Parsing of file succeeded: " + inputFile.getAbsolutePath());
-
-        return rootActElement;
-    }
-
-    private List<List<String>> splitIntoSections(List<String> filteredLines) {
-        List<List<String>> sections = new ArrayList<>();
-        List<String> currentSection = new ArrayList<>();
-
-        for (String line : filteredLines) {
-            if (line.matches(SECTION_REGEXP_PATTERN)) {
-                addSublistIfNotEmpty(sections, currentSection);
-                currentSection = new ArrayList<>();
-            }
-            currentSection.add(line);
+        } else if (filteredLines.get(0).equalsIgnoreCase("konstytucja")) {
+            return parseConstitution(filteredLines);
         }
 
-        addSublistIfNotEmpty(sections, currentSection);
-
-        return sections;
+        throw new ActParsingException("Invalid file. This is neither a constitution nor a act.");
     }
 
-    private void addSublistIfNotEmpty(List<List<String>> mainList, List<String> sublist) {
-        if (sublist != null || sublist.size() != 0) {
-            mainList.add(sublist);
+    private ActElement parseConstitution(List<String> lines) {
+        ActElementBuilder rootActElementBuilder =
+                new ActElementBuilder()
+                        .typeName(lines.get(0) + "\n" + lines.get(1))
+                        .content(lines.get(2));
+
+        List<List<String>> sections =
+                Lists.splitIncludingDelimiterAsFirstElement(lines, e -> e.matches(SECTION_REGEXP_PATTERN));
+
+        checkIfThereIsOnlyOneSectionAndThrowIfNot(sections);
+
+        List<List<String>> chapters =
+                Lists.splitIncludingDelimiterAsFirstElement(sections.get(0), e -> e.matches(CHAPTER_REGEXP_PATTERN));
+
+        List<ActElement> constitutionElements = new ArrayList<>();
+
+        ActElement preamble = createPreamble(chapters);
+
+        constitutionElements.add(preamble);
+
+        constitutionElements.addAll(ChapterParser.parseAll(chapters.subList(1, chapters.size())));
+
+        return rootActElementBuilder.build();
+    }
+
+    private ActElement createPreamble(List<List<String>> chapters) {
+        return new ActElementBuilder()
+                .typeName("Preambuła")
+                .content(Strings.glueBrokenText(chapters.get(0).subList(3, chapters.get(0).size())))
+                .build();
+    }
+
+    private void checkIfThereIsOnlyOneSectionAndThrowIfNot(List<List<String>> sections) {
+        if (sections.size() != 1) {
+            throw new ActParsingException("Given file is not constitution.");
         }
     }
 
