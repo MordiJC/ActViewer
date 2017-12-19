@@ -82,4 +82,19 @@ public class ActElement {
         this.childrenActElements.clear();
         this.childrenActElements = childrenActElements;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(identifier).append(identifier.isEmpty()?"":" ")
+                .append(typeName).append(typeName.isEmpty()?"":"\n")
+                .append(title).append(title.isEmpty()?"":"\n");
+
+        for(ActElement ae: childrenActElements) {
+            builder.append(ae.toString()).append("\n");
+        }
+
+        return builder.toString();
+    }
 }

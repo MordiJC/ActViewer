@@ -1,3 +1,4 @@
+import container.ActElement;
 import org.junit.Test;
 import parser.ActParser;
 
@@ -11,7 +12,10 @@ public class ActParserTest {
 
         ActParser parser = new ActParser();
 
-        parser.parse(constitution);
+        ActElement root = parser.parse(constitution);
+
+        System.out.println(root);
+
     }
 
     @Test

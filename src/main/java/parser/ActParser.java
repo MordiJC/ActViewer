@@ -108,6 +108,8 @@ public class ActParser {
 
         constitutionElements.add(preamble);
 
+        chapters = chapters.subList(1, chapters.size());
+
         ActElement actElement;
         for (List<String> chapter : chapters) {
             actElement = parseSection(chapter, CHAPTER);
@@ -145,7 +147,7 @@ public class ActParser {
                     ).toString()
             );
             throw new ActParsingException("Given section does not match pattern.");
-        }
+        } // TODO: Sekcja nie musi się zaczynać matchującym
 
         boolean firstLineProcessed = false;
 
