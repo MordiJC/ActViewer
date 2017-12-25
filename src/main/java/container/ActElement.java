@@ -6,8 +6,6 @@ import java.util.List;
 
 /**
  * Basic interface used as container for title, act section content and its sub-sections.
- *
- * @since 1.0
  */
 public class ActElement {
     /**
@@ -39,8 +37,6 @@ public class ActElement {
     /**
      * Creates new <code>ActElement</code> instance without any data and description.
      * This instance type should be used only as root element.
-     *
-     * @since 1.0
      */
     public ActElement() {
         this("", "", "", "");
@@ -52,7 +48,6 @@ public class ActElement {
      * @param title      title of section.
      * @param typeName   type name of section.
      * @param identifier identifier of element.
-     * @since 1.0
      */
     public ActElement(String title, String typeName, String identifier, String content) {
         this.title = title;
@@ -66,7 +61,6 @@ public class ActElement {
      * have to be ordered to prevent range operations errors.
      *
      * @return list of child sections.
-     * @since 1.0
      */
     public final List<ActElement> getChildrenActElements() {
         return Collections.unmodifiableList(childrenActElements);
@@ -76,7 +70,6 @@ public class ActElement {
      * Set new children sections list but first removes previous.
      *
      * @param childrenActElements list of children sections.
-     * @since 1.0
      */
     public void setChildrenActElements(List<ActElement> childrenActElements) {
         this.childrenActElements.clear();
@@ -87,14 +80,27 @@ public class ActElement {
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(identifier).append(identifier.isEmpty()?"":" ")
-                .append(typeName).append(typeName.isEmpty()?"":"\n")
-                .append(title).append(title.isEmpty()?"":"\n");
+        builder.append(identifier).append(identifier.isEmpty() ? "" : "")
+                .append(typeName).append(typeName.isEmpty() ? "" : "\n")
+                .append(title).append(title.isEmpty() ? "" : "\n");
 
-        for(ActElement ae: childrenActElements) {
+        for (ActElement ae : childrenActElements) {
             builder.append(ae.toString()).append("\n");
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Tells if element has content only.
+     *
+     * @return {@code true} if has content only.
+     */
+    public boolean hasContentOnly() {
+        return !this.content.isEmpty()
+                && this.identifier.isEmpty()
+                && this.typeName.isEmpty()
+                && this.title.isEmpty()
+                && this.getChildrenActElements().isEmpty();
     }
 }

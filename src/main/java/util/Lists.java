@@ -25,6 +25,21 @@ public class Lists {
         return splitLists;
     }
 
+    public static <T> List<T> getFirstOfSplitIncludingDelimiterAsFirstElement(List<T> target, GenericPredicate<T> predicate) {
+        List<T> currentList = new ArrayList<>();
+
+        for (T i : target) {
+            if (predicate.test(i)) {
+                if (!currentList.isEmpty()) {
+                    return currentList;
+                }
+            }
+            currentList.add(i);
+        }
+
+        return currentList;
+    }
+
     public interface GenericPredicate<T> {
         boolean test(T t);
     }

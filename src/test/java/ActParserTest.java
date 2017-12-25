@@ -24,6 +24,6 @@ public class ActParserTest {
 
         ActParser parser = new ActParser();
 
-        parser.parse(uokik);
+        System.out.println(parser.parse(uokik));
     }
 }
