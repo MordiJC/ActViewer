@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ActParser {
@@ -83,11 +84,9 @@ public class ActParser {
                         .typeName((lines.get(0) + " " + lines.get(2))
                                 .toUpperCase(Locale.forLanguageTag("pl_PL")));
 
-
-        List<List<String>> sections =
-                Lists.splitIncludingDelimiterAsFirstElement(
-                        lines.subList(3, lines.size()),
-                        e -> e.matches(ActParserSectionPattern.GENERAL_SECTIONS[0].pattern));
+        rootActElementBuilder.childrenElements(
+                parseSection(lines.subList(3, lines.size()), ActParserSectionPattern.GENERAL_SECTIONS[0])
+        );
 
 
         return rootActElementBuilder.build();
@@ -95,14 +94,35 @@ public class ActParser {
 
     private List<ActElement> parseSection(List<String> lines, ActParserSectionPattern apsp) {
         if (lines == null || lines.size() == 0) {
-            throw new IllegalArgumentException("lines must not be null and have at least 1 element");
+            throw new IllegalArgumentException("Lines must not be null and have at least 1 element");
         }
 
-        if (apsp == ActParserSectionPattern.ARTICLE.next()) {
-//             return parseArticleContent(lines, ActParserSectionPattern.ARTICLE.next())
+        if (apsp == ActParserSectionPattern.ARTICLE) {
+            // TODO: parse article
 
+            List<List<String>> sectionsLines =
+                    Lists.splitIncludingDelimiterAsFirstElement(
+                            lines,
+                            e -> e.matches(apsp.pattern));
+
+            Pattern pattern = Pattern.compile(apsp.pattern);
+            Matcher matcher;
             List<ActElement> result = new ArrayList<>();
-            result.add(new ActElementBuilder().content(Strings.glueBrokenText(lines)).build());
+
+            for (List<String> section : sectionsLines) {
+                matcher = pattern.matcher(section.get(0));
+                if (!matcher.matches()) {
+                    result.add(new ActElementBuilder().content(Strings.glueBrokenText(section)).build());
+                } else {
+                    result.add(
+                            new ActElementBuilder()
+                                    .identifier(getGroupOrEmptyString(matcher, "identifier"))
+                                    .typeName(getGroupOrEmptyString(matcher, "typeName"))
+                                    .content(Strings.glueBrokenText(section.subList(1, section.size())))
+                                    .build()
+                    );
+                }
+            }
             return result;
         }
 
@@ -111,12 +131,13 @@ public class ActParser {
                         lines,
                         e -> e.matches(apsp.pattern));
 
+        if (sectionsLines.size() == 0) {
+            throw new IllegalStateException();
+        }
 
         if (sectionsLines.size() == 1) {
-            if (sectionsLines.get(0).get(0).matches(apsp.pattern)) { // mamy tylko jedną sekcję.
-                List<ActElement> result = new ArrayList<>();
-                result.add(parseSectionWithTitle(sectionsLines.get(0), apsp));
-                return result;
+            if (sectionsLines.get(0).get(0).matches(apsp.pattern)) {
+                return parseSectionWithTitle(sectionsLines.get(0), apsp);
             } else {
                 if (apsp.hasNext()) {
                     return parseSection(sectionsLines.get(0), apsp.next());
@@ -128,20 +149,22 @@ public class ActParser {
             List<ActElement> actElements = new ArrayList<>();
 
             for (List<String> ls : sectionsLines) {
-                actElements.add(parseSectionWithTitle(ls, apsp));
+                actElements.addAll(parseSectionWithTitle(ls, apsp));
             }
 
             return actElements;
         }
     }
 
-    private ActElement parseSectionWithTitle(List<String> lines, ActParserSectionPattern apsp) {
+    private List<ActElement> parseSectionWithTitle(List<String> lines, ActParserSectionPattern apsp) {
         Pattern pattern = Pattern.compile(apsp.pattern);
         Matcher matcher = pattern.matcher(lines.get(0));
 
         ActElementBuilder actElementBuilder = new ActElementBuilder();
 
-        matcher.matches();
+        if (!matcher.matches()) {
+            return parseSection(lines, apsp.next());
+        }
 
         actElementBuilder.identifier(getGroupOrEmptyString(matcher, "identifier"))
                 .typeName(getGroupOrEmptyString(matcher, "typeName"));
@@ -149,28 +172,24 @@ public class ActParser {
         List<ActElement> subElements =
                 parseSection(lines.subList(1, lines.size()), apsp.next());
 
-        if (subElements.size() > 0) {
-            if (apsp.hasTitle) {
-                actElementBuilder.title(getTitleOrThrow(lines, subElements.get(0)));
+        if (apsp.hasTitle) {
+            if (subElements.size() >= 2) {
+                actElementBuilder.title(lines.get(1));
 
                 subElements = subElements.subList(1, subElements.size());
+            } else {
+                logger.severe(("Section have to be at least 2 lines long: "
+                        + lines.stream().collect(Collectors.joining("\n"))));
+                throw new ActParsingException("Section have to be at least 2 lines long: "
+                        + lines.stream().collect(Collectors.joining("\n")));
             }
         }
 
         actElementBuilder.childrenElements(subElements);
 
-        return actElementBuilder.build();
-    }
-
-    private String getTitleOrThrow(List<String> currentSection, ActElement supposedTitle) {
-        if (supposedTitle.hasContentOnly()) {
-            return supposedTitle.content;
-        } else {
-            String msg = new StringBuilder().append("Section must have title: \n")
-                    .append(currentSection.get(0)).toString();
-            logger.severe(msg);
-            throw new ActParsingException(msg);
-        }
+        List<ActElement> result = new ArrayList<>();
+        result.add(actElementBuilder.build());
+        return result;
     }
 
     private String getGroupOrEmptyString(Matcher matcher, String groupName) {
@@ -184,35 +203,13 @@ public class ActParser {
     private ActElement parseConstitution(List<String> lines) {
         ActElementBuilder rootActElementBuilder =
                 new ActElementBuilder()
-                        .typeName(lines.get(0) + "\n" + lines.get(1))
+                        .typeName(lines.get(0))
+                        .title(lines.get(1))
                         .content(lines.get(2));
 
-        List<List<String>> sections =
-                Lists.splitIncludingDelimiterAsFirstElement(lines, e -> e.matches(ActParserSectionPattern.SECTION.pattern));
-
-        checkIfThereIsOnlyOneSectionAndThrowIfNot(sections);
-
-        List<List<String>> chapters =
-                Lists.splitIncludingDelimiterAsFirstElement(sections.get(0), e -> e.matches(ActParserSectionPattern.CHAPTER.pattern));
-
-        List<ActElement> constitutionElements = new ArrayList<>();
-
-        ActElement preamble = createPreamble(chapters);
-
-        constitutionElements.add(preamble);
-
-        chapters = chapters.subList(1, chapters.size());
-
-        ActElement actElement;
-        for (List<String> chapter : chapters) {
-//            actElement = parseSection(chapter, CHAPTER);
-
-//            if (actElement != null) {
-//                constitutionElements.add(actElement);
-//            }
-        }
-
-        rootActElementBuilder.childrenElements(constitutionElements);
+        rootActElementBuilder.childrenElements(
+                parseSection(lines.subList(3, lines.size()), ActParserSectionPattern.GENERAL_SECTIONS[0])
+        );
 
         return rootActElementBuilder.build();
     }

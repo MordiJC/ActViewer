@@ -17,7 +17,7 @@ public enum ActParserSectionPattern {
             true),
     ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+\\.))\\s*(.*)$",
             false),
-    ENUM_DOT("^(\\d+)\\..*$",
+    ENUM_DOT("^(?<identifier>\\d+)\\..*$",
             false),
     ENUM_NUMBER_AND_PARENTHESIS("^(?<identifier>\\d+[a-z]+)\\).*$",
             false),

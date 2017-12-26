@@ -1,21 +1,30 @@
 package util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Strings {
 
     public static String glueBrokenText(List<String> lines) {
-        List<String> preparedLines = prepareLinesForGluing(lines);
+        if (lines.isEmpty()) {
+            return "";
+        } else if (lines.size() == 1) {
+            return lines.get(0);
+        }
 
-        return String.join(" ", preparedLines)
-                .replace("-\n", "");
-    }
+        List<String> glued = new ArrayList<>();
 
-    private static List<String> prepareLinesForGluing(List<String> lines) {
-        return lines.subList(2, lines.size())
-                .stream()
-                .map(line -> line.replaceAll("\\-$", "-\n"))
-                .collect(Collectors.toList());
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(String line: lines) {
+            if(line.matches(".*-$")) {
+                stringBuilder.append(line.replaceAll("-$", ""));
+            } else {
+                stringBuilder.append(line).append(' ');
+            }
+        }
+
+        return stringBuilder.toString();
     }
 }

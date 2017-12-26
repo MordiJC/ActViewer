@@ -3,6 +3,7 @@ package container;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Basic interface used as container for title, act section content and its sub-sections.
@@ -78,17 +79,40 @@ public class ActElement {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(identifier).append(identifier.isEmpty() ? "" : "")
-                .append(typeName).append(typeName.isEmpty() ? "" : "\n")
-                .append(title).append(title.isEmpty() ? "" : "\n");
-
-        for (ActElement ae : childrenActElements) {
-            builder.append(ae.toString()).append("\n");
+        if(isEmpty()) {
+            return "";
         }
 
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(typeName).append(typeName.isEmpty() ? "" : " ")
+                .append(identifier).append(identifier.isEmpty() ? "" : "\n")
+                .append("[TITLE]\n")
+                .append(title).append(title.isEmpty() ? "" : "\n");
+
+        if(!typeName.isEmpty() && identifier.isEmpty() && title.isEmpty()) {
+            builder.append("\n");
+        }
+
+        builder.append("[CONTENT]\n");
+        builder.append(content);
+
+        childrenActElements.stream().forEach(e-> {
+            Scanner sc = new Scanner(e.toString());
+            while(sc.hasNextLine()) {
+                builder.append("--").append(sc.nextLine()).append("\n");
+            }
+        });
+
         return builder.toString();
+    }
+
+    private boolean isEmpty() {
+        return this.content.isEmpty()
+                && this.identifier.isEmpty()
+                && this.typeName.isEmpty()
+                && this.title.isEmpty()
+                && this.getChildrenActElements().isEmpty();
     }
 
     /**
