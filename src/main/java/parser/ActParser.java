@@ -10,13 +10,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ActParser {
@@ -98,32 +98,7 @@ public class ActParser {
         }
 
         if (apsp == ActParserSectionPattern.ARTICLE) {
-            // TODO: parse article
-
-            List<List<String>> sectionsLines =
-                    Lists.splitIncludingDelimiterAsFirstElement(
-                            lines,
-                            e -> e.matches(apsp.pattern));
-
-            Pattern pattern = Pattern.compile(apsp.pattern);
-            Matcher matcher;
-            List<ActElement> result = new ArrayList<>();
-
-            for (List<String> section : sectionsLines) {
-                matcher = pattern.matcher(section.get(0));
-                if (!matcher.matches()) {
-                    result.add(new ActElementBuilder().content(Strings.glueBrokenText(section)).build());
-                } else {
-                    result.add(
-                            new ActElementBuilder()
-                                    .identifier(getGroupOrEmptyString(matcher, "identifier"))
-                                    .typeName(getGroupOrEmptyString(matcher, "typeName"))
-                                    .content(Strings.glueBrokenText(section.subList(1, section.size())))
-                                    .build()
-                    );
-                }
-            }
-            return result;
+            return parseArticle(lines, apsp);
         }
 
         List<List<String>> sectionsLines =
@@ -133,9 +108,7 @@ public class ActParser {
 
         if (sectionsLines.size() == 0) {
             throw new IllegalStateException();
-        }
-
-        if (sectionsLines.size() == 1) {
+        } else if (sectionsLines.size() == 1) {
             if (sectionsLines.get(0).get(0).matches(apsp.pattern)) {
                 return parseSectionWithTitle(sectionsLines.get(0), apsp);
             } else {
@@ -153,6 +126,99 @@ public class ActParser {
             }
 
             return actElements;
+        }
+    }
+
+    private List<ActElement> parseArticle(List<String> lines, ActParserSectionPattern apsp) {
+        List<List<String>> sectionsLines =
+                Lists.splitIncludingDelimiterAsFirstElement(
+                        lines,
+                        e -> e.matches(apsp.pattern));
+
+        Pattern pattern = Pattern.compile(apsp.pattern);
+        Matcher matcher;
+        List<ActElement> result = new ArrayList<>();
+
+        for (List<String> section : sectionsLines) {
+            matcher = pattern.matcher(section.get(0));
+            if (!matcher.matches()) {
+                result.add(new ActElementBuilder().content(Strings.glueBrokenText(section)).build());
+            } else {
+                result.add(
+                        new ActElementBuilder()
+                                .identifier(getGroupOrEmptyString(matcher, "identifier"))
+                                .typeName(getGroupOrEmptyString(matcher, "typeName"))
+                                .content(Strings.glueBrokenText(section.subList(1, section.size())))
+                                .build()
+                );
+            }
+        }
+        return result;
+    }
+
+    private List<ActElement> parseActicleContent(List<String> lines) {
+        List<List<String>> articleContentSections =
+                Lists.splitIncludingDelimiterAsFirstElement(lines,
+                        e -> e.matches(ActParserSectionPattern.ENUM_DOT.pattern)
+                );
+
+        List<ActElement> result = new ArrayList<>();
+        ActElement supposedSummary = null;
+
+        // TODO: Nie zadziała, bo jeżeli jest podsumowanie, to ostatni punkt nie ma znaku końca,
+        // TODO: a poprzednie mają przecinki, trzeba to obsłużyć
+        if (!articleContentSections.get(0).get(0).matches(ActParserSectionPattern.ENUM_DOT.pattern)) {
+            result.add(
+                    new ActElementBuilder().content(
+                            Strings.glueBrokenText(articleContentSections.get(0))
+                    ).build()
+            );
+            if (articleContentSections.size() > 1) {
+                articleContentSections.remove(0);
+            }
+        }
+
+        if (articleContentSections.size() > 0
+                && !articleContentSections
+                .get(articleContentSections.size() - 1)
+                .get(0).matches(ActParserSectionPattern.ENUM_DOT.pattern)) {
+
+            supposedSummary = new ActElementBuilder()
+                    .content(
+                            Strings.glueBrokenText(
+                                    articleContentSections
+                                            .get(articleContentSections.size() - 1)
+                            )
+                    ).build();
+
+            articleContentSections.remove(articleContentSections.size() - 1);
+        }
+
+        result.addAll(parseEnumPoints(articleContentSections, ActParserSectionPattern.ENUM_SECTIONS[0]));
+
+        if(supposedSummary != null) {
+            result.add(supposedSummary);
+        }
+
+        return result;
+    }
+
+    private List<ActElement> parseEnumPoints(List<List<String>> sections, ActParserSectionPattern enumSection) {
+        List<ActElement> result = new ArrayList<>();
+
+        for(List<String> lines: sections) {
+            checkIfMatchesOrThrow(lines, enumSection);
+
+            List<List<String>> subSections = Lists.splitIncludingDelimiterAsFirstElement(lines, enumSection.next());
+        }
+
+        return result;
+    }
+
+    private void checkIfMatchesOrThrow(List<String> lines, ActParserSectionPattern enumSection) {
+        if(!lines.get(0).matches(enumSection.pattern)) {
+            logger.severe("Given enumeration does not match: " + lines.get(0));
+            throw new ActParsingException("Given enumeration does not match: " + lines.get(0));
         }
     }
 
@@ -176,7 +242,9 @@ public class ActParser {
             if (subElements.size() >= 2) {
                 actElementBuilder.title(lines.get(1));
 
-                subElements = subElements.subList(1, subElements.size());
+                if (subElements.size() > 0) {
+                    subElements.remove(0);
+                }
             } else {
                 logger.severe(("Section have to be at least 2 lines long: "
                         + lines.stream().collect(Collectors.joining("\n"))));
@@ -212,26 +280,6 @@ public class ActParser {
         );
 
         return rootActElementBuilder.build();
-    }
-
-
-    /**
-     * Create preamble from first chapter. GIVEN CHAPTER HAVE TO BE PREAMBLE.
-     *
-     * @param chapters list of chapters.
-     * @return <code>ActElement</code> containing preamble.
-     */
-    private ActElement createPreamble(List<List<String>> chapters) {
-        return new ActElementBuilder()
-                .typeName("Preambuła")
-                .content(Strings.glueBrokenText(chapters.get(0).subList(3, chapters.get(0).size())))
-                .build();
-    }
-
-    private void checkIfThereIsOnlyOneSectionAndThrowIfNot(List<List<String>> sections) {
-        if (sections.size() != 1) {
-            throw new ActParsingException("Given file is not constitution.");
-        }
     }
 
     private FileReader openFileForReadingAndHandleErrors(File inputFile) throws ActParsingException {

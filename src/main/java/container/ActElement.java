@@ -114,17 +114,4 @@ public class ActElement {
                 && this.title.isEmpty()
                 && this.getChildrenActElements().isEmpty();
     }
-
-    /**
-     * Tells if element has content only.
-     *
-     * @return {@code true} if has content only.
-     */
-    public boolean hasContentOnly() {
-        return !this.content.isEmpty()
-                && this.identifier.isEmpty()
-                && this.typeName.isEmpty()
-                && this.title.isEmpty()
-                && this.getChildrenActElements().isEmpty();
-    }
 }
