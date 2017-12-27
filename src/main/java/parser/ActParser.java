@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -144,19 +143,25 @@ public class ActParser {
             if (!matcher.matches()) {
                 result.add(new ActElementBuilder().content(Strings.glueBrokenText(section)).build());
             } else {
-                result.add(
-                        new ActElementBuilder()
-                                .identifier(getGroupOrEmptyString(matcher, "identifier"))
-                                .typeName(getGroupOrEmptyString(matcher, "typeName"))
-                                .content(Strings.glueBrokenText(section.subList(1, section.size())))
-                                .build()
-                );
+                List<ActElement> elements = parseArticleContent(section.subList(1, section.size()));
+
+                ActElementBuilder actElementBuilder = new ActElementBuilder()
+                        .identifier(getGroupOrEmptyString(matcher, "identifier"))
+                        .typeName(getGroupOrEmptyString(matcher, "typeName"));
+
+                if (elements.size() == 1 && elements.get(0).identifier.isEmpty()) {
+                    actElementBuilder.content(elements.get(0).content);
+                } else {
+                    actElementBuilder.childrenElements(elements);
+                }
+
+                result.add(actElementBuilder.build());
             }
         }
         return result;
     }
 
-    private List<ActElement> parseActicleContent(List<String> lines) {
+    private List<ActElement> parseArticleContent(List<String> lines) {
         List<List<String>> articleContentSections =
                 Lists.splitIncludingDelimiterAsFirstElement(lines,
                         e -> e.matches(ActParserSectionPattern.ENUM_DOT.pattern)
@@ -173,7 +178,7 @@ public class ActParser {
                             Strings.glueBrokenText(articleContentSections.get(0))
                     ).build()
             );
-            if (articleContentSections.size() > 1) {
+            if (articleContentSections.size() >= 1) {
                 articleContentSections.remove(0);
             }
         }
@@ -194,29 +199,33 @@ public class ActParser {
             articleContentSections.remove(articleContentSections.size() - 1);
         }
 
-        result.addAll(parseEnumPoints(articleContentSections, ActParserSectionPattern.ENUM_SECTIONS[0]));
+//        result.addAll(parseEnumPoints(articleContentSections, ActParserSectionPattern.ENUM_SECTIONS[0]));
 
-        if(supposedSummary != null) {
+        for (List<String> l : articleContentSections) {
+            result.add(new ActElementBuilder().content(Strings.glueBrokenText(l)).build());
+        }
+
+        if (supposedSummary != null) {
             result.add(supposedSummary);
         }
 
         return result;
     }
 
-    private List<ActElement> parseEnumPoints(List<List<String>> sections, ActParserSectionPattern enumSection) {
-        List<ActElement> result = new ArrayList<>();
-
-        for(List<String> lines: sections) {
-            checkIfMatchesOrThrow(lines, enumSection);
-
-            List<List<String>> subSections = Lists.splitIncludingDelimiterAsFirstElement(lines, enumSection.next());
-        }
-
-        return result;
-    }
+//    private List<ActElement> parseEnumPoints(List<List<String>> sections, ActParserSectionPattern enumSection) {
+//        List<ActElement> result = new ArrayList<>();
+//
+//        for(List<String> lines: sections) {
+//            checkIfMatchesOrThrow(lines, enumSection);
+//
+//            List<List<String>> subSections = Lists.splitIncludingDelimiterAsFirstElement(lines, enumSection.next());
+//        }
+//
+//        return result;
+//    }
 
     private void checkIfMatchesOrThrow(List<String> lines, ActParserSectionPattern enumSection) {
-        if(!lines.get(0).matches(enumSection.pattern)) {
+        if (!lines.get(0).matches(enumSection.pattern)) {
             logger.severe("Given enumeration does not match: " + lines.get(0));
             throw new ActParsingException("Given enumeration does not match: " + lines.get(0));
         }

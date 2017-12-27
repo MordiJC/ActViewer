@@ -15,7 +15,7 @@ public enum ActParserSectionPattern {
             true),
     BRANCH("^\\s*(?i)(?<typeName>ODDZIA[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
             true),
-    ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+\\.))\\s*(.*)$",
+    ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(.*)$",
             false),
     ENUM_DOT("^(?<identifier>\\d+)\\..*$",
             false),
