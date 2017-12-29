@@ -19,13 +19,15 @@ public class Strings {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String line : lines) {
+        for (String line : lines.subList(0, lines.size()-1)) {
             if (line.matches(".*-$")) {
                 stringBuilder.append(line.replaceAll("-$", ""));
             } else {
                 stringBuilder.append(line).append(' ');
             }
         }
+
+        stringBuilder.append(lines.get(lines.size()-1));
 
         return stringBuilder.toString();
     }

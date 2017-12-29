@@ -17,11 +17,11 @@ public enum ActParserSectionPattern {
             true),
     ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(.*)$",
             false),
-    ENUM_DOT("^(?<identifier>\\d+)\\..*$",
+    PARAGRAPH("^(?<identifier>\\d+)\\..*$",
             false),
-    ENUM_NUMBER_AND_PARENTHESIS("^(?<identifier>\\d+[a-z]+)\\).*$",
+    POINT("^(?<identifier>\\d+[a-z]+)\\).*$",
             false),
-    ENUM_LETTER_AND_PARENTHESIS("^(?<identifier>[a-z]+)\\).*$",
+    LETTER("^(?<identifier>[a-z]+)\\).*$",
             false);
 
     /**
@@ -41,7 +41,7 @@ public enum ActParserSectionPattern {
     /**
      * Array of enumerate units that can be found in ARTICLE.
      */
-    public static final ActParserSectionPattern[] ENUM_SECTIONS = {ENUM_DOT, ENUM_NUMBER_AND_PARENTHESIS, ENUM_LETTER_AND_PARENTHESIS};
+    public static final ActParserSectionPattern[] ENUM_SECTIONS = {PARAGRAPH, POINT, LETTER};
 
     /**
      * Constructs <code>ActParserSectionPattern</code> using pattern and title

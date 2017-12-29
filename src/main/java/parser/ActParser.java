@@ -2,18 +2,19 @@ package parser;
 
 import container.ActElement;
 import container.ActElementBuilder;
+import parser.actutils.ArticlesParser;
 import util.Lists;
-import util.Strings;
+import util.Log;
+import util.Regex;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,7 +23,7 @@ public class ActParser {
     private static String INCORRECT_LINES_REGEXP_PATTERN =
             "^(\\u00A9Kancelaria Sejmu.*)|(\\d{4}-\\d{2}-\\d{2})|(Dz\\.U\\..*)|(?:.)$";
 
-    private Logger logger = Logger.getLogger("ActParser");
+    private File file;
 
     private List<String> removeIncorrectLines(List<String> lines) {
         return lines.stream()
@@ -31,10 +32,12 @@ public class ActParser {
     }
 
     public ActElement parse(File inputFile) {
+        this.file = inputFile;
+
         FileReader fileReader = openFileForReadingAndHandleErrors(inputFile);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-        logger.log(Level.INFO, "Attempting to parse file: " + inputFile.getAbsolutePath());
+        Log.getLogger().info("Attempting to parse file: " + inputFile.getAbsolutePath());
 
         List<String> filteredLines = removeIncorrectLines(bufferedReader.lines().collect(Collectors.toList()));
 
@@ -74,7 +77,7 @@ public class ActParser {
 
     private ActElement parseAct(List<String> lines) {
         if (lines.size() < 4) {
-            logger.severe("Given act is too short. It should contain at least 4 lines.");
+            Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
             throw new ActParsingException("Given act is too short. It should contain at least 4 lines.");
         }
 
@@ -97,7 +100,7 @@ public class ActParser {
         }
 
         if (apsp == ActParserSectionPattern.ARTICLE) {
-            return parseArticle(lines, apsp);
+            return new ArticlesParser().parse(lines);
         }
 
         List<List<String>> sectionsLines =
@@ -128,109 +131,6 @@ public class ActParser {
         }
     }
 
-    private List<ActElement> parseArticle(List<String> lines, ActParserSectionPattern apsp) {
-        List<List<String>> sectionsLines =
-                Lists.splitIncludingDelimiterAsFirstElement(
-                        lines,
-                        e -> e.matches(apsp.pattern));
-
-        Pattern pattern = Pattern.compile(apsp.pattern);
-        Matcher matcher;
-        List<ActElement> result = new ArrayList<>();
-
-        for (List<String> section : sectionsLines) {
-            matcher = pattern.matcher(section.get(0));
-            if (!matcher.matches()) {
-                result.add(new ActElementBuilder().content(Strings.glueBrokenText(section)).build());
-            } else {
-                List<ActElement> elements = parseArticleContent(section.subList(1, section.size()));
-
-                ActElementBuilder actElementBuilder = new ActElementBuilder()
-                        .identifier(getGroupOrEmptyString(matcher, "identifier"))
-                        .typeName(getGroupOrEmptyString(matcher, "typeName"));
-
-                if (elements.size() == 1 && elements.get(0).identifier.isEmpty()) {
-                    actElementBuilder.content(elements.get(0).content);
-                } else {
-                    actElementBuilder.childrenElements(elements);
-                }
-
-                result.add(actElementBuilder.build());
-            }
-        }
-        return result;
-    }
-
-    private List<ActElement> parseArticleContent(List<String> lines) {
-        List<List<String>> articleContentSections =
-                Lists.splitIncludingDelimiterAsFirstElement(lines,
-                        e -> e.matches(ActParserSectionPattern.ENUM_DOT.pattern)
-                );
-
-        List<ActElement> result = new ArrayList<>();
-        ActElement supposedSummary = null;
-
-        // TODO: Nie zadziała, bo jeżeli jest podsumowanie, to ostatni punkt nie ma znaku końca,
-        // TODO: a poprzednie mają przecinki, trzeba to obsłużyć
-        if (!articleContentSections.get(0).get(0).matches(ActParserSectionPattern.ENUM_DOT.pattern)) {
-            result.add(
-                    new ActElementBuilder().content(
-                            Strings.glueBrokenText(articleContentSections.get(0))
-                    ).build()
-            );
-            if (articleContentSections.size() >= 1) {
-                articleContentSections.remove(0);
-            }
-        }
-
-        if (articleContentSections.size() > 0
-                && !articleContentSections
-                .get(articleContentSections.size() - 1)
-                .get(0).matches(ActParserSectionPattern.ENUM_DOT.pattern)) {
-
-            supposedSummary = new ActElementBuilder()
-                    .content(
-                            Strings.glueBrokenText(
-                                    articleContentSections
-                                            .get(articleContentSections.size() - 1)
-                            )
-                    ).build();
-
-            articleContentSections.remove(articleContentSections.size() - 1);
-        }
-
-//        result.addAll(parseEnumPoints(articleContentSections, ActParserSectionPattern.ENUM_SECTIONS[0]));
-
-        for (List<String> l : articleContentSections) {
-            result.add(new ActElementBuilder().content(Strings.glueBrokenText(l)).build());
-        }
-
-        if (supposedSummary != null) {
-            result.add(supposedSummary);
-        }
-
-        return result;
-    }
-
-//    private List<ActElement> parseEnumPoints(List<List<String>> sections, ActParserSectionPattern enumSection) {
-//        List<ActElement> result = new ArrayList<>();
-//
-//        for(List<String> lines: sections) {
-//            checkIfMatchesOrThrow(lines, enumSection);
-//
-//            List<List<String>> subSections = Lists.splitIncludingDelimiterAsFirstElement(lines, enumSection.next());
-//        }
-//
-//        return result;
-//    }
-
-    private void checkIfMatchesOrThrow(List<String> lines, ActParserSectionPattern enumSection) {
-        if (!lines.get(0).matches(enumSection.pattern)) {
-            logger.severe("Given enumeration does not match: " + lines.get(0));
-            throw new ActParsingException("Given enumeration does not match: " + lines.get(0));
-        }
-    }
-
     private List<ActElement> parseSectionWithTitle(List<String> lines, ActParserSectionPattern apsp) {
         Pattern pattern = Pattern.compile(apsp.pattern);
         Matcher matcher = pattern.matcher(lines.get(0));
@@ -241,8 +141,8 @@ public class ActParser {
             return parseSection(lines, apsp.next());
         }
 
-        actElementBuilder.identifier(getGroupOrEmptyString(matcher, "identifier"))
-                .typeName(getGroupOrEmptyString(matcher, "typeName"));
+        actElementBuilder.identifier(Regex.getGroupOrEmptyString(matcher, "identifier"))
+                .typeName(Regex.getGroupOrEmptyString(matcher, "typeName"));
 
         List<ActElement> subElements =
                 parseSection(lines.subList(1, lines.size()), apsp.next());
@@ -255,7 +155,7 @@ public class ActParser {
                     subElements.remove(0);
                 }
             } else {
-                logger.severe(("Section have to be at least 2 lines long: "
+                Log.getLogger().severe(("Section have to be at least 2 lines long: "
                         + lines.stream().collect(Collectors.joining("\n"))));
                 throw new ActParsingException("Section have to be at least 2 lines long: "
                         + lines.stream().collect(Collectors.joining("\n")));
@@ -267,14 +167,6 @@ public class ActParser {
         List<ActElement> result = new ArrayList<>();
         result.add(actElementBuilder.build());
         return result;
-    }
-
-    private String getGroupOrEmptyString(Matcher matcher, String groupName) {
-        try {
-            return matcher.group(groupName);
-        } catch (IllegalArgumentException e) {
-            return "";
-        }
     }
 
     private ActElement parseConstitution(List<String> lines) {
@@ -297,11 +189,11 @@ public class ActParser {
         try {
             fileReader = new FileReader(inputFile);
         } catch (FileNotFoundException e) {
-            logger.log(Level.SEVERE, "Unable to open file: " + inputFile.getAbsolutePath());
+            Log.getLogger().severe("Unable to open file: " + inputFile.getAbsolutePath());
             throw new ActParsingException("Unable to open file: " + inputFile.getAbsolutePath(), e);
         }
 
-        logger.log(Level.INFO, "File opened: " + inputFile.getAbsolutePath());
+        Log.getLogger().severe("File opened: " + inputFile.getAbsolutePath());
 
         return fileReader;
     }
