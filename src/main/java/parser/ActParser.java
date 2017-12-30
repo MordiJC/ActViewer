@@ -7,11 +7,10 @@ import util.Lists;
 import util.Log;
 import util.Regex;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,9 +20,12 @@ import java.util.stream.Collectors;
 
 public class ActParser {
     private static String INCORRECT_LINES_REGEXP_PATTERN =
-            "^(\\u00A9Kancelaria Sejmu.*)|(\\d{4}-\\d{2}-\\d{2})|(Dz\\.U\\..*)|(?:.)$";
-
-    private File file;
+            "^(\\u00A9Kancelaria Sejmu.*)|" +
+                    "(\\d{4}-\\d{2}-\\d{2})|" +
+                    "(Dz\\.U\\..*)|" +
+                    "(?:.)|" +
+                    "(.*\\(uchylony\\)\\s*)|" +
+                    "(.*\\(pominięty\\)\\s*)$";
 
     private List<String> removeIncorrectLines(List<String> lines) {
         return lines.stream()
@@ -32,8 +34,6 @@ public class ActParser {
     }
 
     public ActElement parse(File inputFile) {
-        this.file = inputFile;
-
         FileReader fileReader = openFileForReadingAndHandleErrors(inputFile);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 

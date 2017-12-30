@@ -17,11 +17,11 @@ public enum ActParserSectionPattern {
             true),
     ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(.*)$",
             false),
-    PARAGRAPH("^(?<identifier>\\d+)\\..*$",
+    PARAGRAPH("^(?<identifier>\\d+\\.)\\s*(?<content>.*)$",
             false),
-    POINT("^(?<identifier>\\d+[a-z]+)\\).*$",
+    POINT("^(?<identifier>\\d+[a-z]*\\))\\s*(?<content>.*)$",
             false),
-    LETTER("^(?<identifier>[a-z]+)\\).*$",
+    LETTER("^(?<identifier>[a-z]+\\))\\s*(?<content>.*)",
             false);
 
     /**

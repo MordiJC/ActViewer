@@ -12,7 +12,6 @@ public class ActParserTest {
         ActParser parser = new ActParser();
 
         System.out.println(parser.parse(constitution));
-
     }
 
     @Test

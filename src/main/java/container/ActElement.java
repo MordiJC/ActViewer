@@ -100,7 +100,7 @@ public class ActElement {
         childrenActElements.stream().forEach(e-> {
             Scanner sc = new Scanner(e.toString());
             while(sc.hasNextLine()) {
-                builder.append("--").append(sc.nextLine()).append("\n");
+                builder.append("\t").append(sc.nextLine()).append("\n");
             }
         });
 
