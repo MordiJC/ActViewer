@@ -16,11 +16,14 @@ import static parser.ActParserSectionPattern.PARAGRAPH;
 
 public class ParagraphsParser {
     public List<ActElement> getParagraphs(List<String> lines) {
-        return getParagraphContent(lines, PARAGRAPH);
+        return getChildrenElements(lines, PARAGRAPH);
     }
 
-    private List<ActElement> getParagraphContent(List<String> lines, ActParserSectionPattern apsp) {
-        // if apsp == LETTER
+    private List<ActElement> getChildrenElements(List<String> lines, ActParserSectionPattern apsp) {
+        // TODO: FIX
+        if(lines == null || lines.size() == 0) {
+            throw new IllegalArgumentException("Lines must not be null or its size have to be > 0");
+        }
 
         List<List<String>> paragraphs =
                 Lists.splitIncludingDelimiterAsFirstElement(
@@ -31,12 +34,16 @@ public class ParagraphsParser {
                         e->e.matches(apsp.pattern)
                 );
 
+        List<ActElement> results = new ArrayList<>();
+
+        if(paragraphs.size() == 0) {
+            return results;
+        }
+
         if(paragraphs.size() == 1
                 && !paragraphs.get(0).get(0).matches(apsp.pattern)) {
             return new ArrayList<>();
         }
-
-        List<ActElement> results = new ArrayList<>();
 
         Pattern pattern = Pattern.compile(apsp.pattern);
         Matcher matcher;

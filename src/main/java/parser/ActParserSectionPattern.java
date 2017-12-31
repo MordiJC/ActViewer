@@ -15,13 +15,13 @@ public enum ActParserSectionPattern {
             true),
     BRANCH("^\\s*(?i)(?<typeName>ODDZIA[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
             true),
-    ARTICLE("^(?i)((?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(.*)$",
+    ARTICLE("^(?i)(?<id>(?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(?<content>.*)$",
             false),
-    PARAGRAPH("^(?<identifier>\\d+\\.)\\s*(?<content>.*)$",
+    PARAGRAPH("^(?<id>(?<identifier>\\d+\\.))\\s*(?<content>.*)$",
             false),
-    POINT("^(?<identifier>\\d+[a-z]*\\))\\s*(?<content>.*)$",
+    POINT("^(?<id>(?<identifier>\\d+[a-z]*\\)))\\s*(?<content>.*)$",
             false),
-    LETTER("^(?<identifier>[a-z]+\\))\\s*(?<content>.*)",
+    LETTER("^(?<id>(?<identifier>[a-z]+\\)))\\s*(?<content>.*)",
             false);
 
     /**

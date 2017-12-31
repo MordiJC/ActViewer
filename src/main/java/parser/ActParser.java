@@ -19,19 +19,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ActParser {
-    private static String INCORRECT_LINES_REGEXP_PATTERN =
-            "^(\\u00A9Kancelaria Sejmu.*)|" +
-                    "(\\d{4}-\\d{2}-\\d{2})|" +
-                    "(Dz\\.U\\..*)|" +
-                    "(?:.)|" +
-                    "(.*\\(uchylony\\)\\s*)|" +
-                    "(.*\\(pominięty\\)\\s*)$";
-
-    private List<String> removeIncorrectLines(List<String> lines) {
-        return lines.stream()
-                .filter(line -> !line.matches(INCORRECT_LINES_REGEXP_PATTERN))
-                .collect(Collectors.toList());
-    }
 
     public ActElement parse(File inputFile) {
         FileReader fileReader = openFileForReadingAndHandleErrors(inputFile);
@@ -39,7 +26,7 @@ public class ActParser {
 
         Log.getLogger().info("Attempting to parse file: " + inputFile.getAbsolutePath());
 
-        List<String> filteredLines = removeIncorrectLines(bufferedReader.lines().collect(Collectors.toList()));
+        List<String> filteredLines = new ActPreparser().prepare(bufferedReader.lines().collect(Collectors.toList()));
 
         filteredLines = prepareForParsing(filteredLines);
 

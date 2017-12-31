@@ -1,7 +1,5 @@
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import joptsimple.util.DateConverter;
-import parser.ActLocationPathValueConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,13 +39,13 @@ public class ActViewer {
                         .ofType(String.class);
 
 
-                acceptsAll(rangeEndOptionNames,
-                        "Display range of chapters, articles, etc.")
-                        .withRequiredArg()
-                        .withValuesSeparatedBy(".")
-                        .describedAs("Level1.Level2.Level3....")
-                        .withValuesConvertedBy(new ActLocationPathValueConverter())
-                        .ofType(String.class);
+//                acceptsAll(rangeEndOptionNames,
+//                        "Display range of chapters, articles, etc.")
+//                        .withRequiredArg()
+//                        .withValuesSeparatedBy(".")
+//                        .describedAs("Level1.Level2.Level3....")
+//                        .withValuesConvertedBy(new ActLocationPathValueConverter())
+//                        .ofType(String.class);
 
                 // Table of contents mode.
                 acceptsAll(tableOfContentsOptionNames, "Show table of contents");
