@@ -1,4 +1,5 @@
 import org.junit.Test;
+import parser.ActParserSectionPattern;
 import parser.actutils.ParagraphsParser;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class ParagraphsParserTest {
         List<String> lines = Collections.singletonList("Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia.");
 
         assertEquals(lines.get(0),
-                new ParagraphsParser().getIntroduction(lines));
+                new ParagraphsParser().getIntroduction(lines, ActParserSectionPattern.PARAGRAPH));
     }
 
     @Test
@@ -31,6 +32,6 @@ public class ParagraphsParserTest {
                 "miejscowego obowiązujące na obszarze działania tych organów. Zasady i tryb wy" +
                 "dawania aktów prawa miejscowego określa ustawa.";
 
-        assertEquals(expected, new ParagraphsParser().getIntroduction(lines));
+        assertEquals(expected, new ParagraphsParser().getIntroduction(lines, ActParserSectionPattern.PARAGRAPH));
     }
 }
