@@ -11,6 +11,10 @@ public class Strings {
      * @return glued text.
      */
     public static String glueBrokenText(List<String> lines) {
+        return glueBrokenTextAndJoinWith(lines, " ");
+    }
+
+    public static String glueBrokenTextAndJoinWith(List<String> lines, String separator) {
         if (lines.isEmpty()) {
             return "";
         } else if (lines.size() == 1) {
@@ -23,7 +27,7 @@ public class Strings {
             if (line.matches(".*-$")) {
                 stringBuilder.append(line.replaceAll("-$", ""));
             } else {
-                stringBuilder.append(line).append(' ');
+                stringBuilder.append(line).append(separator);
             }
         }
 

@@ -21,7 +21,7 @@ public enum ActParserSectionPattern {
             false),
     POINT("^(?<id>(?<identifier>\\d+[a-z]*\\)))\\s*(?<content>.*)$",
             false),
-    LETTER("^(?<id>(?<identifier>[a-z]+\\)))\\s*(?<content>.*)",
+    LETTER("^(?<id>(?<identifier>[a-z]+\\)))\\s*(?<content>.{5,})",
             false);
 
     /**

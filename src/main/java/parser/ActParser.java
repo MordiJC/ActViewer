@@ -3,6 +3,7 @@ package parser;
 import container.ActElement;
 import container.ActElementBuilder;
 import parser.actutils.ArticlesParser;
+import parser.actutils.PreambleParser;
 import util.Lists;
 import util.Log;
 import util.Regex;
@@ -157,17 +158,19 @@ public class ActParser {
     }
 
     private ActElement parseConstitution(List<String> lines) {
-        ActElementBuilder rootActElementBuilder =
-                new ActElementBuilder()
-                        .typeName(lines.get(0))
-                        .title(lines.get(1))
-                        .content(lines.get(2));
+        PreambleParser preambleParser = new PreambleParser(lines);
+        ActElement constitution = preambleParser.parse();
 
-        rootActElementBuilder.childrenElements(
-                parseSection(lines.subList(3, lines.size()), ActParserSectionPattern.GENERAL_SECTIONS[0])
+        List<String> constitutionContent = lines.subList(
+                preambleParser.getPreambleLinesCount(),
+                lines.size()
         );
 
-        return rootActElementBuilder.build();
+        constitution.setChildrenActElements(
+                parseSection(constitutionContent, ActParserSectionPattern.GENERAL_SECTIONS[0])
+        );
+
+        return constitution;
     }
 
     private FileReader openFileForReadingAndHandleErrors(File inputFile) throws ActParsingException {

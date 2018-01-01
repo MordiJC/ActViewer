@@ -1,11 +1,13 @@
 import org.junit.Test;
 import parser.ActParser;
 import parser.ActPreparser;
+import parser.actutils.PreambleParser;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ActParserTest {
@@ -38,5 +40,17 @@ public class ActParserTest {
                 .prepare(bufferedReader.lines().collect(Collectors.toList()))
                 .stream()
                 .forEach(System.out::println);
+    }
+
+    @Test
+    public void preambleParserManualTest() throws FileNotFoundException {
+        File constitution = new File(getClass().getClassLoader().getResource("konstytucja.txt").getFile());
+        FileReader fileReader = new FileReader(constitution);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+        List<String> preparsedLines = new ActPreparser()
+                .prepare(bufferedReader.lines().collect(Collectors.toList()));
+
+        System.out.println(new PreambleParser(preparsedLines).parse());
     }
 }
