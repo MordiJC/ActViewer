@@ -3,6 +3,7 @@ package io.gihub.mordijc.parser.actutils;
 import io.gihub.mordijc.container.ActElement;
 import io.gihub.mordijc.container.ActElementBuilder;
 import io.gihub.mordijc.util.Lists;
+import io.gihub.mordijc.util.Log;
 import io.gihub.mordijc.util.Regex;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class ArticlesParser {
         matcher.reset(lines.get(0));
 
         if (!matcher.matches()) {
+            Log.getLogger().severe(lines.get(0));
             throw new ParsingException("Given text is not an article.");
         }
 

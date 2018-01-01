@@ -2,10 +2,7 @@ package io.gihub.mordijc.parser;
 
 import io.gihub.mordijc.container.ActElement;
 import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.parser.actutils.ActPreparser;
-import io.gihub.mordijc.parser.actutils.ArticlesParser;
-import io.gihub.mordijc.parser.actutils.PreambleParser;
-import io.gihub.mordijc.parser.actutils.ParsingException;
+import io.gihub.mordijc.parser.actutils.*;
 import io.gihub.mordijc.util.Lists;
 import io.gihub.mordijc.util.Log;
 import io.gihub.mordijc.util.Regex;
@@ -66,6 +63,7 @@ public class ActParser {
     }
 
     private ActElement parseAct(List<String> lines) {
+        // TODO: FIX
         if (lines.size() < 4) {
             Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
             throw new ParsingException("Given act is too short. It should contain at least 4 lines.");
@@ -164,12 +162,12 @@ public class ActParser {
         ActElement constitution = preambleParser.parse();
 
         List<String> constitutionContent = lines.subList(
-                preambleParser.getPreambleLinesCount(),
+                preambleParser.getPreambleLinesCount() + 3, // 3 first lines of constitution
                 lines.size()
         );
 
         constitution.setChildrenActElements(
-                parseSection(constitutionContent, ActParserSection.GENERAL_SECTIONS[0])
+                new SectionsParser().parse(constitutionContent)
         );
 
         return constitution;

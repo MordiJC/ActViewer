@@ -83,7 +83,7 @@ public class EnumSectionsParser {
             );
         }
 
-        return null; // DUMMY
+        return results;
     }
 
     public String getIntroduction() {

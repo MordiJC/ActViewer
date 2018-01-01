@@ -4,6 +4,7 @@ import io.gihub.mordijc.container.ActElement;
 import io.gihub.mordijc.container.ActElementBuilder;
 import io.gihub.mordijc.parser.ActParserSection;
 import io.gihub.mordijc.util.Lists;
+import io.gihub.mordijc.util.Log;
 import io.gihub.mordijc.util.Regex;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static io.gihub.mordijc.parser.ActParserSection.ARTICLE;
 import static io.gihub.mordijc.parser.ActParserSection.GENERAL_SECTIONS;
@@ -28,31 +30,31 @@ public class SectionsParser {
             throw new IllegalArgumentException("Argument must not be a null and have to have elements");
         }
 
-        List<ActElement> result = new ArrayList<>();
-
-
-        return result;
+        return parseSections(lines, GENERAL_SECTIONS[0]);
     }
 
     private List<ActElement> parseSections(List<String> lines, ActParserSection actParserSection) throws ParsingException {
         assert (lines != null && lines.size() != 0);
         assert (actParserSection != null);
 
-        if (actParserSection == ARTICLE) {
+        ActParserSection detectedSection = getMatchingSectionStartingFrom(lines.get(0), actParserSection);
+
+        if (detectedSection == ARTICLE) {
             return new ArticlesParser().parse(lines);
-        } else if (Arrays.asList(GENERAL_SECTIONS).indexOf(actParserSection) == -1) {
+        } else if (Arrays.asList(GENERAL_SECTIONS).indexOf(detectedSection) == -1) {
+            Log.getLogger().severe(detectedSection.name());
             throw new IllegalArgumentException("ActParserSection is invalid");
         }
 
         List<List<String>> sections =
-                Lists.splitIncludingDelimiterAsFirstElement(lines, e -> e.matches(actParserSection.pattern));
+                Lists.splitIncludingDelimiterAsFirstElement(lines, e -> e.matches(detectedSection.pattern));
 
         List<ActElement> result = new ArrayList<>();
 
         ActElement actElement;
 
         for (List<String> section : sections) {
-            actElement = parseSection(section, actParserSection);
+            actElement = parseSection(section, detectedSection);
 
             if (actElement != null) {
                 result.add(actElement);
@@ -60,16 +62,6 @@ public class SectionsParser {
         }
 
         return result;
-    }
-
-    private ActParserSection getMatchingSectionStartingFrom(String firstLine, ActParserSection actParserSection) {
-        for (int i = actParserSection.ordinal(); i < ActParserSection.values().length; ++i) {
-            if (firstLine.matches(ActParserSection.values()[i].pattern)) {
-                return actParserSection;
-            }
-        }
-
-        throw new ParsingException("No matching pattern for this section.");
     }
 
     private ActElement parseSection(List<String> lines, ActParserSection actParserSection) throws ParsingException {
@@ -83,7 +75,10 @@ public class SectionsParser {
         Pattern pattern = Pattern.compile(currentSection.pattern);
         Matcher matcher = pattern.matcher(lines.get(0));
 
-        matcher.matches();
+        if (!matcher.matches()) {
+            Log.getLogger().severe(lines.get(0));
+            throw new ParsingException("Given section is not valid.");
+        }
 
         actElementBuilder.typeName(
                 Regex.getGroupOrEmptyString(matcher, "typeName")
@@ -94,8 +89,23 @@ public class SectionsParser {
         List<String> sectionContent;
 
         if (currentSection.hasTitle) {
-            actElementBuilder.title(lines.get(1));
-            sectionContent = lines.subList(2, lines.size());
+            List<String> title =
+                    lines.stream().skip(1).takeWhile(
+                            e -> {
+                                for (ActParserSection parserSection : ActParserSection.values()) {
+                                    if (e.matches(parserSection.pattern)) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                    ).collect(Collectors.toList());
+
+            actElementBuilder.title(
+                title.stream().collect(Collectors.joining(" "))
+            );
+
+            sectionContent = lines.subList(1 + title.size(), lines.size());
         } else {
             sectionContent = lines.subList(1, lines.size());
         }
@@ -103,5 +113,16 @@ public class SectionsParser {
         actElementBuilder.childrenElements(parseSections(sectionContent, currentSection.next()));
 
         return actElementBuilder.build();
+    }
+
+    private ActParserSection getMatchingSectionStartingFrom(String firstLine, ActParserSection actParserSection) {
+        for (int i = actParserSection.ordinal(); i < ActParserSection.values().length; ++i) {
+            if (firstLine.matches(ActParserSection.values()[i].pattern)) {
+                return ActParserSection.values()[i];
+            }
+        }
+
+        Log.getLogger().severe(firstLine);
+        throw new ParsingException("No matching pattern for this section.");
     }
 }

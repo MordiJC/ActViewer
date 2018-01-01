@@ -79,7 +79,7 @@ public class ActElement {
 
     @Override
     public String toString() {
-        if(isEmpty()) {
+        if (isEmpty()) {
             return "";
         }
 
@@ -90,16 +90,17 @@ public class ActElement {
                 .append("[TITLE]\n")
                 .append(title).append(title.isEmpty() ? "" : "\n");
 
-        if(!typeName.isEmpty() && identifier.isEmpty() && title.isEmpty()) {
+        if (!typeName.isEmpty() && identifier.isEmpty() && title.isEmpty()) {
             builder.append("\n");
         }
 
-        builder.append("[CONTENT]\n");
-        builder.append(content);
+        builder.append("[CONTENT]\n")
+                .append(content)
+                .append('\n');
 
-        childrenActElements.stream().forEach(e-> {
+        childrenActElements.stream().forEach(e -> {
             Scanner sc = new Scanner(e.toString());
-            while(sc.hasNextLine()) {
+            while (sc.hasNextLine()) {
                 builder.append("\t").append(sc.nextLine()).append("\n");
             }
         });
