@@ -1,6 +1,7 @@
-package parser;
+package io.gihub.mordijc.parser.actutils;
 
-import util.Regex;
+import io.gihub.mordijc.parser.ActParserSection;
+import io.gihub.mordijc.util.Regex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,10 @@ import java.util.stream.Stream;
 
 public class ActPreparser {
     private static final Pattern[] SPLIT_PATTERNS = new Pattern[]{
-            Pattern.compile(ActParserSectionPattern.ARTICLE.pattern),
-            Pattern.compile(ActParserSectionPattern.PARAGRAPH.pattern),
-            Pattern.compile(ActParserSectionPattern.POINT.pattern),
-            Pattern.compile(ActParserSectionPattern.LETTER.pattern)
+            Pattern.compile(ActParserSection.ARTICLE.pattern),
+            Pattern.compile(ActParserSection.PARAGRAPH.pattern),
+            Pattern.compile(ActParserSection.POINT.pattern),
+            Pattern.compile(ActParserSection.LETTER.pattern)
     };
 
     private static final Pattern[] INVALID_PATTERNS = new Pattern[]{

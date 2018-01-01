@@ -1,4 +1,4 @@
-package parser.actutils;
+package io.gihub.mordijc.parser.actutils;
 
 public class ParsingException extends RuntimeException {
     /**

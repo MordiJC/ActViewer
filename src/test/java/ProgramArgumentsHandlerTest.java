@@ -1,5 +1,5 @@
 import org.junit.Test;
-import parser.ProgramArgumentsHandler;
+import io.gihub.mordijc.ProgramArgumentsHandler;
 
 import java.io.StringWriter;
 import static org.junit.Assert.assertEquals;

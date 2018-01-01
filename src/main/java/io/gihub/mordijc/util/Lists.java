@@ -1,4 +1,4 @@
-package util;
+package io.gihub.mordijc.util;
 
 import java.util.ArrayList;
 import java.util.List;

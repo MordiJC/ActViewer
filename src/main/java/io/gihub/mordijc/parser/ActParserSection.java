@@ -1,8 +1,9 @@
-package parser;
+package io.gihub.mordijc.parser;
 
 import java.util.NoSuchElementException;
 
-public enum ActParserSectionPattern {
+// TODO: Add formatting string
+public enum ActParserSection {
     PART("^\\s*(?i)(?<typeName>CZ[Ęę][Śś][Ćć])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
             true),
     BOOK("^\\s*(?i)(?<typeName>KSI[Ęę]GA)\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
@@ -37,14 +38,14 @@ public enum ActParserSectionPattern {
     /**
      * Array of systematization units. Last one is ARTICLE and is here only because it needs to be split as the others.
      */
-    public static final ActParserSectionPattern[] GENERAL_SECTIONS = {PART, BOOK, TITLE, SECTION, CHAPTER, BRANCH, ARTICLE};
+    public static final ActParserSection[] GENERAL_SECTIONS = {PART, BOOK, TITLE, SECTION, CHAPTER, BRANCH, ARTICLE};
     /**
      * Array of enumerate units that can be found in ARTICLE.
      */
-    public static final ActParserSectionPattern[] ENUM_SECTIONS = {PARAGRAPH, POINT, LETTER};
+    public static final ActParserSection[] ENUM_SECTIONS = {PARAGRAPH, POINT, LETTER};
 
     /**
-     * Constructs <code>ActParserSectionPattern</code> using pattern and title
+     * Constructs <code>ActParserSection</code> using pattern and title
      * presence flag.
      * <p>
      * <p><code>pattern</code> will be used to match one line of text. It can
@@ -53,9 +54,9 @@ public enum ActParserSectionPattern {
      * fields.</p>
      *
      * @param pattern  regular expression pattern.
-     * @param hasTitle tells if parser should look for title in next lines.
+     * @param hasTitle tells if io.gihub.mordijc.parser should look for title in next lines.
      */
-    ActParserSectionPattern(String pattern, boolean hasTitle) {
+    ActParserSection(String pattern, boolean hasTitle) {
         this.pattern = pattern;
         this.hasTitle = hasTitle;
     }
@@ -67,13 +68,13 @@ public enum ActParserSectionPattern {
      * @throws NoSuchElementException if there is no successor (current
      *                                element is last in enum order)
      */
-    public ActParserSectionPattern next() throws NoSuchElementException {
+    public ActParserSection next() throws NoSuchElementException {
         int ord = this.ordinal() + 1;
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
 
-        return ActParserSectionPattern.values()[ord];
+        return ActParserSection.values()[ord];
     }
 
     /**
@@ -83,13 +84,13 @@ public enum ActParserSectionPattern {
      * @throws NoSuchElementException if there is no predecessor (current
      *                                element is first in enum order)
      */
-    public ActParserSectionPattern previous() throws NoSuchElementException {
+    public ActParserSection previous() throws NoSuchElementException {
         int ord = this.ordinal() - 1;
         if (!hasPrevious()) {
             throw new NoSuchElementException();
         }
 
-        return ActParserSectionPattern.values()[ord];
+        return ActParserSection.values()[ord];
     }
 
     /**
@@ -99,7 +100,7 @@ public enum ActParserSectionPattern {
      */
     public boolean hasNext() {
         int ord = this.ordinal() + 1;
-        if (ord >= ActParserSectionPattern.values().length
+        if (ord >= ActParserSection.values().length
                 || ord < 0) {
             return false;
         }
@@ -113,7 +114,7 @@ public enum ActParserSectionPattern {
      */
     public boolean hasPrevious() {
         int ord = this.ordinal() - 1;
-        if (ord >= ActParserSectionPattern.values().length
+        if (ord >= ActParserSection.values().length
                 || ord < 0) {
             return false;
         }

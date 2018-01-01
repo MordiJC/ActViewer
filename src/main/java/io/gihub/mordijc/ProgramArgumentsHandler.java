@@ -1,4 +1,4 @@
-package parser;
+package io.gihub.mordijc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;

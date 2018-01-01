@@ -1,7 +1,7 @@
 import org.junit.Test;
-import parser.ActParser;
-import parser.ActPreparser;
-import parser.actutils.PreambleParser;
+import io.gihub.mordijc.parser.ActParser;
+import io.gihub.mordijc.parser.actutils.ActPreparser;
+import io.gihub.mordijc.parser.actutils.PreambleParser;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,4 +1,4 @@
-package container;
+package io.gihub.mordijc.container;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Basic interface used as container for title, act section content and its sub-sections.
+ * Basic interface used as io.gihub.mordijc.container for title, act section content and its sub-sections.
  */
 public class ActElement {
     /**

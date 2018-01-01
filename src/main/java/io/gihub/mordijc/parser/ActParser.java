@@ -1,12 +1,14 @@
-package parser;
+package io.gihub.mordijc.parser;
 
-import container.ActElement;
-import container.ActElementBuilder;
-import parser.actutils.ArticlesParser;
-import parser.actutils.PreambleParser;
-import util.Lists;
-import util.Log;
-import util.Regex;
+import io.gihub.mordijc.container.ActElement;
+import io.gihub.mordijc.container.ActElementBuilder;
+import io.gihub.mordijc.parser.actutils.ActPreparser;
+import io.gihub.mordijc.parser.actutils.ArticlesParser;
+import io.gihub.mordijc.parser.actutils.PreambleParser;
+import io.gihub.mordijc.parser.actutils.ParsingException;
+import io.gihub.mordijc.util.Lists;
+import io.gihub.mordijc.util.Log;
+import io.gihub.mordijc.util.Regex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,13 +40,13 @@ public class ActParser {
             return parseConstitution(filteredLines);
         }
 
-        throw new ActParsingException("Invalid file. This is neither a constitution nor a act.");
+        throw new ParsingException("Invalid file. This is neither a constitution nor a act.");
     }
 
     private List<String> prepareForParsing(List<String> lines) {
         List<String> filteredLines = new ArrayList<>();
 
-        Pattern pattern = Pattern.compile(ActParserSectionPattern.ARTICLE.pattern);
+        Pattern pattern = Pattern.compile(ActParserSection.ARTICLE.pattern);
         Matcher matcher = pattern.matcher("");
 
         for (String s : lines) {
@@ -66,7 +68,7 @@ public class ActParser {
     private ActElement parseAct(List<String> lines) {
         if (lines.size() < 4) {
             Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
-            throw new ActParsingException("Given act is too short. It should contain at least 4 lines.");
+            throw new ParsingException("Given act is too short. It should contain at least 4 lines.");
         }
 
         ActElementBuilder rootActElementBuilder =
@@ -75,19 +77,19 @@ public class ActParser {
                                 .toUpperCase(Locale.forLanguageTag("pl_PL")));
 
         rootActElementBuilder.childrenElements(
-                parseSection(lines.subList(3, lines.size()), ActParserSectionPattern.GENERAL_SECTIONS[0])
+                parseSection(lines.subList(3, lines.size()), ActParserSection.GENERAL_SECTIONS[0])
         );
 
 
         return rootActElementBuilder.build();
     }
 
-    private List<ActElement> parseSection(List<String> lines, ActParserSectionPattern apsp) {
+    private List<ActElement> parseSection(List<String> lines, ActParserSection apsp) {
         if (lines == null || lines.size() == 0) {
             throw new IllegalArgumentException("Lines must not be null and have at least 1 element");
         }
 
-        if (apsp == ActParserSectionPattern.ARTICLE) {
+        if (apsp == ActParserSection.ARTICLE) {
             return new ArticlesParser().parse(lines);
         }
 
@@ -119,7 +121,7 @@ public class ActParser {
         }
     }
 
-    private List<ActElement> parseSectionWithTitle(List<String> lines, ActParserSectionPattern apsp) {
+    private List<ActElement> parseSectionWithTitle(List<String> lines, ActParserSection apsp) {
         Pattern pattern = Pattern.compile(apsp.pattern);
         Matcher matcher = pattern.matcher(lines.get(0));
 
@@ -145,7 +147,7 @@ public class ActParser {
             } else {
                 Log.getLogger().severe(("Section have to be at least 2 lines long: "
                         + lines.stream().collect(Collectors.joining("\n"))));
-                throw new ActParsingException("Section have to be at least 2 lines long: "
+                throw new ParsingException("Section have to be at least 2 lines long: "
                         + lines.stream().collect(Collectors.joining("\n")));
             }
         }
@@ -167,20 +169,20 @@ public class ActParser {
         );
 
         constitution.setChildrenActElements(
-                parseSection(constitutionContent, ActParserSectionPattern.GENERAL_SECTIONS[0])
+                parseSection(constitutionContent, ActParserSection.GENERAL_SECTIONS[0])
         );
 
         return constitution;
     }
 
-    private FileReader openFileForReadingAndHandleErrors(File inputFile) throws ActParsingException {
+    private FileReader openFileForReadingAndHandleErrors(File inputFile) throws ParsingException {
         FileReader fileReader;
 
         try {
             fileReader = new FileReader(inputFile);
         } catch (FileNotFoundException e) {
             Log.getLogger().severe("Unable to open file: " + inputFile.getAbsolutePath());
-            throw new ActParsingException("Unable to open file: " + inputFile.getAbsolutePath(), e);
+            throw new ParsingException("Unable to open file: " + inputFile.getAbsolutePath(), e);
         }
 
         Log.getLogger().severe("File opened: " + inputFile.getAbsolutePath());

@@ -1,14 +1,13 @@
-package parser.actutils;
+package io.gihub.mordijc.parser.actutils;
 
-import container.ActElement;
-import container.ActElementBuilder;
-import parser.ActParsingException;
-import util.Lists;
-import util.Strings;
+import io.gihub.mordijc.container.ActElement;
+import io.gihub.mordijc.container.ActElementBuilder;
+import io.gihub.mordijc.util.Lists;
+import io.gihub.mordijc.util.Strings;
 
 import java.util.List;
 
-import static parser.ActParserSectionPattern.CHAPTER;
+import static io.gihub.mordijc.parser.ActParserSection.CHAPTER;
 
 public class PreambleParser {
     private List<String> parsingTarget;
@@ -21,7 +20,7 @@ public class PreambleParser {
         parsingTarget = lines;
     }
 
-    public ActElement parse() throws ActParsingException {
+    public ActElement parse() throws ParsingException {
         if (parsingTarget == null || parsingTarget.size() == 0) {
             throw new IllegalArgumentException("Argument must not be a null and have to have elements");
         }
@@ -63,7 +62,7 @@ public class PreambleParser {
         if (!parsingTarget.get(0).matches("(?i)\\s*KONSTYTUCJA\\s*")
                 && !parsingTarget.get(1).matches("(?i)\\s*RZECZYPOSPOLITEJ\\s*POLSKIEJ\\s*")
                 && !parsingTarget.get(2).matches("(?i)\\s*z dnia.*")) {
-            throw new ActParsingException("Given text is not constitution");
+            throw new ParsingException("Given text is not constitution");
         }
     }
 }
