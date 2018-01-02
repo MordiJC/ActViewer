@@ -14,6 +14,13 @@ public class Strings {
         return glueBrokenTextAndJoinWith(lines, " ");
     }
 
+    /**
+     * Joins wrapped words with and joins lines with given separator.
+     *
+     * @param lines list of lines to glue.
+     * @param separator lines separator
+     * @return glued text.
+     */
     public static String glueBrokenTextAndJoinWith(List<String> lines, String separator) {
         if (lines.isEmpty()) {
             return "";

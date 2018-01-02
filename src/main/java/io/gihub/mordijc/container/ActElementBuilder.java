@@ -1,9 +1,14 @@
 package io.gihub.mordijc.container;
 
+import io.gihub.mordijc.parser.ActParserSection;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.gihub.mordijc.parser.ActParserSection.TEXT;
+
 public class ActElementBuilder {
+    private ActParserSection type = TEXT;
     private String title = "";
     private String identifier = "";
     private String typeName = "";
@@ -13,9 +18,14 @@ public class ActElementBuilder {
 
     public ActElement build()
     {
-        ActElement result = new ActElement(title, typeName, identifier, content, summary);
+        ActElement result = new ActElement(type, title, typeName, identifier, content, summary);
         result.setChildrenActElements(childrenActElements);
         return result;
+    }
+
+    public ActElementBuilder type(ActParserSection type) {
+        this.type = type;
+        return this;
     }
 
     public ActElementBuilder summary(String summary) {

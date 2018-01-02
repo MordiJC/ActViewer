@@ -49,6 +49,7 @@ public class ArticlesParser {
                 new EnumSectionsParser(lines.subList(1, lines.size()));
 
         actElementBuilder
+                .type(enumSectionsParser.getType())
                 .content(enumSectionsParser.getIntroduction())
                 .childrenElements(enumSectionsParser.getSections())
                 .summary(enumSectionsParser.getSummary());

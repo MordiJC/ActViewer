@@ -42,6 +42,7 @@ public class SectionsParser {
         if (detectedSection == ARTICLE) {
             return new ArticlesParser().parse(lines);
         } else if (Arrays.asList(GENERAL_SECTIONS).indexOf(detectedSection) == -1) {
+            Log.getLogger().severe(lines.get(0));
             Log.getLogger().severe(detectedSection.name());
             throw new IllegalArgumentException("ActParserSection is invalid");
         }
@@ -92,7 +93,7 @@ public class SectionsParser {
             List<String> title =
                     lines.stream().skip(1).takeWhile(
                             e -> {
-                                for (ActParserSection parserSection : ActParserSection.values()) {
+                                for (ActParserSection parserSection : ActParserSection.ELEMENT_SECTIONS) {
                                     if (e.matches(parserSection.pattern)) {
                                         return false;
                                     }
@@ -110,7 +111,8 @@ public class SectionsParser {
             sectionContent = lines.subList(1, lines.size());
         }
 
-        actElementBuilder.childrenElements(parseSections(sectionContent, currentSection.next()));
+        actElementBuilder.childrenElements(parseSections(sectionContent, currentSection.next()))
+                .type(currentSection);
 
         return actElementBuilder.build();
     }

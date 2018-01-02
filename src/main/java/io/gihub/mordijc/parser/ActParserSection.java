@@ -23,18 +23,11 @@ public enum ActParserSection {
     POINT("^(?<id>(?<identifier>\\d+[a-z]*\\)))\\s*(?<content>.*)$",
             false),
     LETTER("^(?<id>(?<identifier>[a-z]+\\)))\\s*(?<content>.{5,})",
+            false),
+    TEXT(".*",
+            false),
+    NONE ("",
             false);
-
-    /**
-     * Regexp pattern.
-     */
-    public final String pattern;
-
-    /**
-     * Tells if section has title in next line(s).
-     */
-    public final boolean hasTitle;
-
     /**
      * Array of systematization units. Last one is ARTICLE and is here only because it needs to be split as the others.
      */
@@ -43,6 +36,15 @@ public enum ActParserSection {
      * Array of enumerate units that can be found in ARTICLE.
      */
     public static final ActParserSection[] ENUM_SECTIONS = {PARAGRAPH, POINT, LETTER};
+    public static final ActParserSection[] ELEMENT_SECTIONS = {PART, BOOK, TITLE, SECTION, CHAPTER, BRANCH, ARTICLE, PARAGRAPH, POINT, LETTER};
+    /**
+     * Regexp pattern.
+     */
+    public final String pattern;
+    /**
+     * Tells if section has title in next line(s).
+     */
+    public final boolean hasTitle;
 
     /**
      * Constructs <code>ActParserSection</code> using pattern and title

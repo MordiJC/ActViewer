@@ -1,9 +1,17 @@
 package io.gihub.mordijc.container;
 
+import io.gihub.mordijc.parser.ActParserSection;
+import io.gihub.mordijc.util.Regex;
+import javafx.css.Match;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static io.gihub.mordijc.parser.ActParserSection.TEXT;
 
 /**
  * Basic interface used as io.gihub.mordijc.container for title, act section content and its sub-sections.
@@ -41,11 +49,16 @@ public class ActElement {
     private List<ActElement> childrenActElements = new ArrayList<>();
 
     /**
+     * ActElement type.
+     */
+    public final ActParserSection type;
+
+    /**
      * Creates new <code>ActElement</code> instance without any data and description.
      * This instance type should be used only as root element.
      */
     public ActElement() {
-        this("", "", "", "", "");
+        this(TEXT,"", "", "", "", "");
     }
 
     /**
@@ -55,7 +68,8 @@ public class ActElement {
      * @param typeName   type name of section.
      * @param identifier identifier of element.
      */
-    public ActElement(String title, String typeName, String identifier, String content, String summary) {
+    public ActElement(ActParserSection type, String title, String typeName, String identifier, String content, String summary) {
+        this.type = type;
         this.title = title;
         this.typeName = typeName;
         this.identifier = identifier;
@@ -93,43 +107,90 @@ public class ActElement {
 
         builder.append(typeName).append(typeName.isEmpty() ? "" : " ")
                 .append(identifier).append(identifier.isEmpty() ? "" : "\n")
-                .append("[TITLE]\n")
                 .append(title).append(title.isEmpty() ? "" : "\n");
 
         if (!typeName.isEmpty() && identifier.isEmpty() && title.isEmpty()) {
             builder.append("\n");
         }
 
-        builder.append("[CONTENT]\n")
-                .append(content)
-                .append("[CONTENT END]\n");
+        builder.append(content);
 
         if(childrenActElements.size() != 0) {
-            builder.append("[CHILDREN]\n");
             childrenActElements.stream().forEach(e -> {
                 Scanner sc = new Scanner(e.toString());
                 while (sc.hasNextLine()) {
                     builder.append("\t").append(sc.nextLine()).append("\n");
                 }
             });
-            builder.append("[CHILDREN END]");
         }
 
         if(!summary.isEmpty()) {
-            builder.append("[SUMMARY]\n")
-                    .append(summary)
-                    .append("[SUMMARY END]\n");
+            builder.append(summary);
         }
 
         return builder.toString();
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return this.content.isEmpty()
                 && this.identifier.isEmpty()
                 && this.typeName.isEmpty()
                 && this.title.isEmpty()
                 && this.summary.isEmpty()
                 && this.getChildrenActElements().isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ActElement that = (ActElement) o;
+
+        if(!type.equals(that.type)) {
+            return false;
+        }
+
+        if (!title.equals(that.title)) {
+            return false;
+        }
+        if (!identifier.equals(that.identifier)) {
+            return false;
+        }
+        if (!typeName.equals(that.typeName)) {
+            return false;
+        }
+        if (!content.equals(that.content)) {
+            return false;
+        }
+        if (!summary.equals(that.summary)) {
+            return false;
+        }
+        return childrenActElements.equals(that.childrenActElements);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = title.hashCode();
+        result = 53 * result + type.hashCode();
+        result = 59 * result + identifier.hashCode();
+        result = 61 * result + typeName.hashCode();
+        result = 67 * result + content.hashCode();
+        result = 71 * result + summary.hashCode();
+        result = 73 * result + childrenActElements.hashCode();
+        return result;
+    }
+
+    public String strippedIdentifier() {
+        Matcher matcher = Pattern.compile(type.pattern).matcher(identifier.trim());
+        if(!matcher.matches()) {
+            throw new IllegalStateException("Identifier does not match type of element.");
+        }
+
+        return Regex.getGroupOrEmptyString(matcher, "identifier").replaceAll("[]).\\s]", "");
     }
 }

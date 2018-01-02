@@ -64,7 +64,6 @@ public class ActParser {
     }
 
     private ActElement parseAct(List<String> lines) {
-        // TODO: FIX
         if (lines.size() < 4) {
             Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
             throw new ParsingException("Given act is too short. It should contain at least 4 lines.");

@@ -14,12 +14,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.gihub.mordijc.parser.ActParserSection.ENUM_SECTIONS;
+import static io.gihub.mordijc.parser.ActParserSection.NONE;
 
 public class EnumSectionsParser {
     private List<String> lines;
     private String introduction = "";
     private List<ActElement> sections = new ArrayList<>();
     private String summary = "";
+    private ActParserSection type = NONE;
+
+    public ActParserSection getType() {
+        return type;
+    }
 
     public EnumSectionsParser(List<String> lines) {
         reset(lines);
@@ -57,6 +63,8 @@ public class EnumSectionsParser {
 
         ActParserSection currentActParserSection =
                 getMatchingOrNull(currentSection.get(0), ENUM_SECTIONS);
+
+        this.type = currentActParserSection;
 
         if (currentActParserSection == null) {
             throw new ParsingException("This should never happen.");
@@ -108,6 +116,9 @@ public class EnumSectionsParser {
                 new EnumSectionsParser(section.subList(1, section.size()));
 
         return new ActElementBuilder()
+                .type(
+                        enumSectionsParser.getType()
+                )
                 .identifier(
                         Regex.getGroupOrEmptyString(matcher, "identifier")
                 )
