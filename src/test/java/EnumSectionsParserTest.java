@@ -3,6 +3,7 @@ import io.gihub.mordijc.parser.actutils.EnumSectionsParser;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -78,7 +79,7 @@ public class EnumSectionsParserTest {
                         "miejscowego obowiązujące na obszarze działania tych organów. Zasady i tryb wy-\n" +
                         "dawania aktów prawa miejscowego określa ustawa.\n" +
                         "a) bla bla").split("\n")
-                );
+        );
 
         String expected = "Organy samorządu terytorialnego oraz terenowe organy administracji rządowej, na " +
                 "podstawie i w granicach upoważnień zawartych w ustawie, ustanawiają akty prawa " +

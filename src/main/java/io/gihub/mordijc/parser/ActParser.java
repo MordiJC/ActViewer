@@ -2,10 +2,11 @@ package io.gihub.mordijc.parser;
 
 import io.gihub.mordijc.container.ActElement;
 import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.parser.actutils.*;
-import io.gihub.mordijc.util.Lists;
+import io.gihub.mordijc.parser.actutils.ActPreparser;
+import io.gihub.mordijc.parser.actutils.ParsingException;
+import io.gihub.mordijc.parser.actutils.PreambleParser;
+import io.gihub.mordijc.parser.actutils.SectionsParser;
 import io.gihub.mordijc.util.Log;
-import io.gihub.mordijc.util.Regex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -71,90 +72,16 @@ public class ActParser {
 
         ActElementBuilder rootActElementBuilder =
                 new ActElementBuilder()
-                        .typeName((lines.get(0) + " " + lines.get(2))
+                        .title((lines.get(0).trim() + " " + lines.get(2).trim())
                                 .toUpperCase(Locale.forLanguageTag("pl_PL")));
 
+        List<String> actContent = lines.subList(3, lines.size());
+
         rootActElementBuilder.childrenElements(
-                parseSection(lines.subList(3, lines.size()), ActParserSection.GENERAL_SECTIONS[0])
+                new SectionsParser().parse(actContent)
         );
 
-
         return rootActElementBuilder.build();
-    }
-
-    private List<ActElement> parseSection(List<String> lines, ActParserSection apsp) {
-        if (lines == null || lines.size() == 0) {
-            throw new IllegalArgumentException("Lines must not be null and have at least 1 element");
-        }
-
-        if (apsp == ActParserSection.ARTICLE) {
-            return new ArticlesParser().parse(lines);
-        }
-
-        List<List<String>> sectionsLines =
-                Lists.splitIncludingDelimiterAsFirstElement(
-                        lines,
-                        e -> e.matches(apsp.pattern));
-
-        if (sectionsLines.size() == 0) {
-            throw new IllegalStateException();
-        } else if (sectionsLines.size() == 1) {
-            if (sectionsLines.get(0).get(0).matches(apsp.pattern)) {
-                return parseSectionWithTitle(sectionsLines.get(0), apsp);
-            } else {
-                if (apsp.hasNext()) {
-                    return parseSection(sectionsLines.get(0), apsp.next());
-                } else {
-                    throw new IllegalStateException("Something strange happened during parsing.");
-                }
-            }
-        } else {
-            List<ActElement> actElements = new ArrayList<>();
-
-            for (List<String> ls : sectionsLines) {
-                actElements.addAll(parseSectionWithTitle(ls, apsp));
-            }
-
-            return actElements;
-        }
-    }
-
-    private List<ActElement> parseSectionWithTitle(List<String> lines, ActParserSection apsp) {
-        Pattern pattern = Pattern.compile(apsp.pattern);
-        Matcher matcher = pattern.matcher(lines.get(0));
-
-        ActElementBuilder actElementBuilder = new ActElementBuilder();
-
-        if (!matcher.matches()) {
-            return parseSection(lines, apsp.next());
-        }
-
-        actElementBuilder.identifier(Regex.getGroupOrEmptyString(matcher, "identifier"))
-                .typeName(Regex.getGroupOrEmptyString(matcher, "typeName"));
-
-        List<ActElement> subElements =
-                parseSection(lines.subList(1, lines.size()), apsp.next());
-
-        if (apsp.hasTitle) {
-            if (subElements.size() >= 2) {
-                actElementBuilder.title(lines.get(1));
-
-                if (subElements.size() > 0) {
-                    subElements.remove(0);
-                }
-            } else {
-                Log.getLogger().severe(("Section have to be at least 2 lines long: "
-                        + lines.stream().collect(Collectors.joining("\n"))));
-                throw new ParsingException("Section have to be at least 2 lines long: "
-                        + lines.stream().collect(Collectors.joining("\n")));
-            }
-        }
-
-        actElementBuilder.childrenElements(subElements);
-
-        List<ActElement> result = new ArrayList<>();
-        result.add(actElementBuilder.build());
-        return result;
     }
 
     private ActElement parseConstitution(List<String> lines) {

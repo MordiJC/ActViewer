@@ -45,13 +45,13 @@ public class ArticlesParser {
                 .typeName(Regex.getGroupOrEmptyString(matcher, "typeName"))
                 .identifier(Regex.getGroupOrEmptyString(matcher, "identifier"));
 
-        EnumSectionsParser enumSectionsParser = new EnumSectionsParser(lines.subList(1, lines.size()));
+        EnumSectionsParser enumSectionsParser =
+                new EnumSectionsParser(lines.subList(1, lines.size()));
 
-        actElementBuilder.content(enumSectionsParser.getIntroduction());
-
-        actElementBuilder.childrenElements(
-                enumSectionsParser.getEnumSections()
-        );
+        actElementBuilder
+                .content(enumSectionsParser.getIntroduction())
+                .childrenElements(enumSectionsParser.getSections())
+                .summary(enumSectionsParser.getSummary());
 
         return actElementBuilder.build();
     }

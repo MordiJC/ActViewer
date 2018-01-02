@@ -8,13 +8,19 @@ public class ActElementBuilder {
     private String identifier = "";
     private String typeName = "";
     private String content = "";
+    private String summary = "";
     private List<ActElement> childrenActElements = new ArrayList<>();
 
     public ActElement build()
     {
-        ActElement result = new ActElement(title, typeName, identifier, content);
+        ActElement result = new ActElement(title, typeName, identifier, content, summary);
         result.setChildrenActElements(childrenActElements);
         return result;
+    }
+
+    public ActElementBuilder summary(String summary) {
+        this.summary = summary;
+        return this;
     }
 
     public ActElementBuilder content(String content) {

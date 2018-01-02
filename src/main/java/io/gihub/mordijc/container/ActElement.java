@@ -31,6 +31,11 @@ public class ActElement {
     public final String content;
 
     /**
+     * Summary of children elements
+     */
+    public final String summary;
+
+    /**
      * List of child <code>ActElement</code> instances.
      */
     private List<ActElement> childrenActElements = new ArrayList<>();
@@ -40,7 +45,7 @@ public class ActElement {
      * This instance type should be used only as root element.
      */
     public ActElement() {
-        this("", "", "", "");
+        this("", "", "", "", "");
     }
 
     /**
@@ -50,11 +55,12 @@ public class ActElement {
      * @param typeName   type name of section.
      * @param identifier identifier of element.
      */
-    public ActElement(String title, String typeName, String identifier, String content) {
+    public ActElement(String title, String typeName, String identifier, String content, String summary) {
         this.title = title;
         this.typeName = typeName;
         this.identifier = identifier;
         this.content = content;
+        this.summary = summary;
     }
 
     /**
@@ -96,14 +102,24 @@ public class ActElement {
 
         builder.append("[CONTENT]\n")
                 .append(content)
-                .append('\n');
+                .append("[CONTENT END]\n");
 
-        childrenActElements.stream().forEach(e -> {
-            Scanner sc = new Scanner(e.toString());
-            while (sc.hasNextLine()) {
-                builder.append("\t").append(sc.nextLine()).append("\n");
-            }
-        });
+        if(childrenActElements.size() != 0) {
+            builder.append("[CHILDREN]\n");
+            childrenActElements.stream().forEach(e -> {
+                Scanner sc = new Scanner(e.toString());
+                while (sc.hasNextLine()) {
+                    builder.append("\t").append(sc.nextLine()).append("\n");
+                }
+            });
+            builder.append("[CHILDREN END]");
+        }
+
+        if(!summary.isEmpty()) {
+            builder.append("[SUMMARY]\n")
+                    .append(summary)
+                    .append("[SUMMARY END]\n");
+        }
 
         return builder.toString();
     }
@@ -113,6 +129,7 @@ public class ActElement {
                 && this.identifier.isEmpty()
                 && this.typeName.isEmpty()
                 && this.title.isEmpty()
+                && this.summary.isEmpty()
                 && this.getChildrenActElements().isEmpty();
     }
 }
