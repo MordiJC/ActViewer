@@ -11,5 +11,5 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.9'
+    compile 'info.picocli:picocli:2.2.1'
 }

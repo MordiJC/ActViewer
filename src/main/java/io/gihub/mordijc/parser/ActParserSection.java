@@ -4,17 +4,17 @@ import java.util.NoSuchElementException;
 
 // TODO: Add formatting string
 public enum ActParserSection {
-    PART("^\\s*(?i)(?<typeName>CZ[Ęę][Śś][Ćć])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
+    PART("^\\s*(?i)(?<typeName>CZ[\u0118\u0119][\u015a\u015b][\u0106\u0107])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
             true),
-    BOOK("^\\s*(?i)(?<typeName>KSI[Ęę]GA)\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
+    BOOK("^\\s*(?i)(?<typeName>KSI[\u0118\u0119]GA)\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
             true),
-    TITLE("^\\s*(?i)(?<typeName>TYTU[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
+    TITLE("^\\s*(?i)(?<typeName>TYTU[\u0141\u0142])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
             true),
-    SECTION("^\\s*(?i)(?<typeName>DZIA[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
+    SECTION("^\\s*(?i)(?<typeName>DZIA[\u0141\u0142])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})[a-zA-Z])?\\s*$",
             true),
-    CHAPTER("^\\s*(?i)(?<typeName>ROZDZIA[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
+    CHAPTER("^\\s*(?i)(?<typeName>ROZDZIA[\u0141\u0142])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
             true),
-    BRANCH("^\\s*(?i)(?<typeName>ODDZIA[Łł])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
+    BRANCH("^\\s*(?i)(?<typeName>ODDZIA[\u0141\u0142])\\s*(?<identifier>M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})|\\d+)\\s*$",
             true),
     ARTICLE("^(?i)(?<id>(?<typeName>Art\\.)\\s*(?<identifier>\\d+[a-z]?\\.))\\s*(?<content>.*)$",
             false),

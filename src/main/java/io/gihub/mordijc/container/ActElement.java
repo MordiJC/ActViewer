@@ -29,7 +29,7 @@ public class ActElement {
     public final String identifier;
     /**
      * Type name of element.
-     * E.g. "Rodział", "DZIAŁ"
+     * E.g. "Rodzia&#x142;", "DZIA&#x141;"
      */
     public final String typeName;
 

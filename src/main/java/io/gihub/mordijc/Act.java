@@ -10,31 +10,15 @@ import static io.gihub.mordijc.parser.ActParserSection.SECTION;
 
 public class Act {
     public final List<ActElement> articles;
-    private final IndexElement rootElement;
+    private final ActElement rootElement;
 
     public Act(ActElement actElement) {
         if (actElement == null || actElement.isEmpty()) {
             throw new IllegalArgumentException("ActElement cannot be null or empty");
         }
 
-        this.rootElement = new IndexElement(actElement, mapElement(actElement);
+        this.rootElement = actElement;
         this.articles = getAllArticles(actElement);
-    }
-
-    private Map<String, IndexElement> mapElement(ActElement actElement) {
-        Map<String, IndexElement> result = new HashMap<>();
-
-        for (ActElement child : actElement.getChildrenActElements()) {
-            result.put(
-                    child.strippedIdentifier(),
-                    new IndexElement(
-                            child,
-                            mapElement(child)
-                    )
-            );
-        }
-
-        return result;
     }
 
     private List<ActElement> getAllArticles(ActElement actElement) {
@@ -121,15 +105,15 @@ public class Act {
     }
 
     public ActElement getChapterByIdentifier(String identifier) {
-       return findElement(rootElement.element, identifier, CHAPTER);
+       return findElement(rootElement, identifier, CHAPTER);
     }
 
     public ActElement getSectionByIdentifier(String identifier) {
-        return findElement(rootElement.element, identifier, SECTION);
+        return findElement(rootElement, identifier, SECTION);
     }
 
     private ActElement findElement(ActElement actElement, String identifier, ActParserSection type) {
-        ActElement root = rootElement.element;
+        ActElement root = rootElement;
 
         for(ActElement element: root.getChildrenActElements()) {
             if(element.type == type
@@ -141,15 +125,5 @@ public class Act {
         }
 
         throw new NoSuchElementException("Chapter not found.");
-    }
-
-    public class IndexElement {
-        public final ActElement element;
-        public final Map<String, IndexElement> children;
-
-        IndexElement(ActElement element, Map<String, IndexElement> childrenMap) {
-            this.element = element;
-            this.children = childrenMap;
-        }
     }
 }

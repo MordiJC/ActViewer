@@ -25,6 +25,9 @@ public class ActParserTest {
     public void uokikParsingTest(){
         File uokik = new File(getClass().getClassLoader().getResource("uokik.txt").getFile());
 
+        assert uokik != null;
+        assert uokik.exists();
+
         ActParser parser = new ActParser();
 
         System.out.println(parser.parse(uokik));
