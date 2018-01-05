@@ -23,8 +23,6 @@ public class ActViewer {
                 return;
             }
 
-//            Log.getLogger().setLevel(applicationCommand.logLevel);
-
             Act act = new Act(
                     new ActParser().parse(applicationCommand.inputFile)
             );

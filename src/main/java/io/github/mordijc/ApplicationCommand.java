@@ -5,10 +5,6 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.util.logging.Level.SEVERE;
 
 @CommandLine.Command(description = "Polish constitution and act viewer.")
 public class ApplicationCommand {
@@ -29,11 +25,11 @@ public class ApplicationCommand {
     String endArticle = null;
 
     @Option(names = {"-c", "--chapter"}, paramLabel = "<chapter>",
-            description = "Show chapters' contents.")
+            description = "Show chapter`s contents.")
     String chapter = null;
 
     @Option(names = {"-s", "--section"}, paramLabel = "<section>",
-            description = "Show sections' contents.")
+            description = "Show section`s contents.")
     String section = null;
 
     @Option(names = {"-t", "--toc"}, description = "Show table of contents")

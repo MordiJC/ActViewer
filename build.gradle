@@ -14,16 +14,11 @@ dependencies {
     compile 'info.picocli:picocli:2.2.1'
 }
 
-task fatJar(type: Jar) {
+jar {
     manifest {
         attributes 'Implementation-Version': version,
                 'Main-Class': 'io.github.mordijc.ActViewer'
     }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
 
-jar {
-    fatJar.execute()
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
