@@ -37,7 +37,7 @@ public class ArticlesParser {
         matcher.reset(lines.get(0));
 
         if (!matcher.matches()) {
-            Log.getLogger().severe(lines.get(0));
+//            Log.getLogger().severe(lines.get(0));
             throw new ParsingException("Given text is not an article.");
         }
 
@@ -49,7 +49,7 @@ public class ArticlesParser {
                 new EnumSectionsParser(lines.subList(1, lines.size()));
 
         actElementBuilder
-                .type(enumSectionsParser.getType())
+                .type(ARTICLE)
                 .content(enumSectionsParser.getIntroduction())
                 .childrenElements(enumSectionsParser.getSections())
                 .summary(enumSectionsParser.getSummary());

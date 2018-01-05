@@ -1,3 +1,4 @@
+import io.gihub.mordijc.Act;
 import org.junit.Test;
 import io.gihub.mordijc.parser.ActParser;
 import io.gihub.mordijc.parser.actutils.ActPreparser;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 public class ActParserTest {
 
     @Test
-    public void constitutionParsingTest() {
+    public void constitutionParsingManualTest() {
         File constitution = new File(getClass().getClassLoader().getResource("konstytucja.txt").getFile());
 
         ActParser parser = new ActParser();
@@ -22,15 +23,20 @@ public class ActParserTest {
     }
 
     @Test
-    public void uokikParsingTest(){
+    public void uokikParsingManualTest(){
         File uokik = new File(getClass().getClassLoader().getResource("uokik.txt").getFile());
 
-        assert uokik != null;
         assert uokik.exists();
 
         ActParser parser = new ActParser();
 
-        System.out.println(parser.parse(uokik));
+        Act act = new Act(parser.parse(uokik));
+
+
+        System.out.println(act.getFillContents());
+
+
+        System.out.println(act.getTableOfContents());
     }
 
     @Test

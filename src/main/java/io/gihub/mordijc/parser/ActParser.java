@@ -25,7 +25,7 @@ public class ActParser {
         FileReader fileReader = openFileForReadingAndHandleErrors(inputFile);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-        Log.getLogger().info("Attempting to parse file: " + inputFile.getAbsolutePath());
+//        Log.getLogger().info("Attempting to parse file: " + inputFile.getAbsolutePath());
 
         List<String> filteredLines = new ActPreparser().prepare(bufferedReader.lines().collect(Collectors.toList()));
 
@@ -65,7 +65,7 @@ public class ActParser {
 
     private ActElement parseAct(List<String> lines) {
         if (lines.size() < 4) {
-            Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
+//            Log.getLogger().severe("Given act is too short. It should contain at least 4 lines.");
             throw new ParsingException("Given act is too short. It should contain at least 4 lines.");
         }
 
@@ -105,11 +105,11 @@ public class ActParser {
         try {
             fileReader = new FileReader(inputFile);
         } catch (FileNotFoundException e) {
-            Log.getLogger().severe("Unable to open file: " + inputFile.getAbsolutePath());
+//            Log.getLogger().severe("Unable to open file: " + inputFile.getAbsolutePath());
             throw new ParsingException("Unable to open file: " + inputFile.getAbsolutePath(), e);
         }
 
-        Log.getLogger().severe("File opened: " + inputFile.getAbsolutePath());
+//        Log.getLogger().severe("File opened: " + inputFile.getAbsolutePath());
 
         return fileReader;
     }

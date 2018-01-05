@@ -99,6 +99,10 @@ public class ActElement {
 
     @Override
     public String toString() {
+        return getStringRepresentation(true);
+    }
+
+    public String getStringRepresentation(boolean showContent) {
         if (isEmpty()) {
             return "";
         }
@@ -113,11 +117,13 @@ public class ActElement {
             builder.append("\n");
         }
 
-        builder.append(content);
+        if(showContent && !content.isEmpty()) {
+            builder.append(content).append('\n');
+        }
 
         if(childrenActElements.size() != 0) {
             childrenActElements.stream().forEach(e -> {
-                Scanner sc = new Scanner(e.toString());
+                Scanner sc = new Scanner(e.getStringRepresentation(showContent));
                 while (sc.hasNextLine()) {
                     builder.append("\t").append(sc.nextLine()).append("\n");
                 }

@@ -42,8 +42,8 @@ public class SectionsParser {
         if (detectedSection == ARTICLE) {
             return new ArticlesParser().parse(lines);
         } else if (Arrays.asList(GENERAL_SECTIONS).indexOf(detectedSection) == -1) {
-            Log.getLogger().severe(lines.get(0));
-            Log.getLogger().severe(detectedSection.name());
+//            Log.getLogger().severe(lines.get(0));
+//            Log.getLogger().severe(detectedSection.name());
             throw new IllegalArgumentException("ActParserSection is invalid");
         }
 
@@ -77,7 +77,7 @@ public class SectionsParser {
         Matcher matcher = pattern.matcher(lines.get(0));
 
         if (!matcher.matches()) {
-            Log.getLogger().severe(lines.get(0));
+//            Log.getLogger().severe(lines.get(0));
             throw new ParsingException("Given section is not valid.");
         }
 
@@ -124,7 +124,7 @@ public class SectionsParser {
             }
         }
 
-        Log.getLogger().severe(firstLine);
+//        Log.getLogger().severe(firstLine);
         throw new ParsingException("No matching pattern for this section.");
     }
 }

@@ -56,7 +56,9 @@ public class ActPreparser {
                 String content = Regex.getGroupOrEmptyString(matcher, "content");
 
                 if (!content.isEmpty()) {
-                    preparedLineParts.add(content);
+                    preparedLineParts.addAll(
+                            prepareLine(content).collect(Collectors.toList())
+                    );
                 }
 
                 return preparedLineParts.stream();

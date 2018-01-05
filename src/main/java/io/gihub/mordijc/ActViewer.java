@@ -1,9 +1,12 @@
 package io.gihub.mordijc;
 
+import io.gihub.mordijc.parser.ActParser;
+import io.gihub.mordijc.parser.actutils.ParsingException;
 import picocli.CommandLine;
 
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -11,43 +14,79 @@ public class ActViewer {
     public static void main(String[] args) {
         ApplicationCommand applicationCommand = new ApplicationCommand();
 
-        System.out.println(Arrays.toString(ApplicationCommand.class.getDeclaredFields()));
-
         try {
             CommandLine commandLine = new CommandLine(applicationCommand);
             commandLine.parse(args);
 
-            if(commandLine.isUsageHelpRequested()) {
+            if (commandLine.isUsageHelpRequested()) {
                 commandLine.usage(System.out, CommandLine.Help.Ansi.ON);
                 return;
             }
 
-            if (!checkSelectCommandsState(applicationCommand)) {
-                return;
+//            Log.getLogger().setLevel(applicationCommand.logLevel);
+
+            Act act = new Act(
+                    new ActParser().parse(applicationCommand.inputFile)
+            );
+
+            switch (getSelectCommandOrThrow(applicationCommand)) {
+                case ARTICLE:
+                    if (applicationCommand.endArticle == null) {
+                        System.out.println(
+                                act.getArticleElementByIdentifier(applicationCommand.article)
+                        );
+                    } else {
+                        act.getArticlesRange(
+                                applicationCommand.article,
+                                applicationCommand.endArticle
+                        ).forEach(System.out::println);
+                    }
+                    break;
+                case CHAPTER:
+                    System.out.println(
+                            act.getChapterByIdentifier(applicationCommand.chapter)
+                    );
+                    break;
+                case SECTION:
+                    System.out.println(
+                            act.getSectionByIdentifier(applicationCommand.section)
+                    );
+                    break;
+                case TOC:
+                    if (applicationCommand.tocRequested) {
+                        System.out.println(
+                                act.getTableOfContents()
+                        );
+                    }
+                    break;
             }
-        } catch (CommandLine.MissingParameterException e) {
+
+        } catch (CommandLine.PicocliException | IllegalArgumentException | ParsingException e) {
             System.err.println(e.getMessage());
             CommandLine.usage(new ApplicationCommand(), System.err, CommandLine.Help.Ansi.ON);
         }
-
-        System.out.println(applicationCommand);
     }
 
-    private static boolean checkSelectCommandsState(ApplicationCommand applicationCommand) {
-        if(Stream.of(applicationCommand.article,
+    private static ApplicationCommand.SelectCommand getSelectCommandOrThrow(ApplicationCommand applicationCommand) {
+        Supplier<Stream<Object>> supplier = () -> Stream.of(applicationCommand.article,
                 applicationCommand.chapter,
                 applicationCommand.section,
-                applicationCommand.tocRequested)
-                .filter(Objects::isNull)
+                applicationCommand.tocRequested);
+        if (supplier.get()
+                .filter(e -> (e == null) || (e instanceof Boolean && !((Boolean) e)))
                 .count() != 3) {
-            System.err.println("You must provide only one of selecting commands:\n" +
-                   String.join(", ", applicationCommand.getArticleOptionNames()) + "\n" +
+            throw new IllegalArgumentException("You must provide only one of selecting commands:\n" +
+                    String.join(", ", applicationCommand.getArticleOptionNames()) + "\n" +
                     String.join(", ", applicationCommand.getChapterOptionNames()) + "\n" +
                     String.join(", ", applicationCommand.getSectionOptionNames()) + "\n" +
                     String.join(", ", applicationCommand.getTocRequestedOptionNames())
             );
-            return false;
         }
-        return true;
+        return ApplicationCommand.SelectCommand
+                .values()
+                [supplier.get()
+                .map(Objects::nonNull)
+                .collect(Collectors.toList())
+                .indexOf(true)];
     }
 }

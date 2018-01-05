@@ -5,6 +5,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.SEVERE;
 
 @CommandLine.Command(description = "Polish constitution and act viewer.")
 public class ApplicationCommand {
@@ -14,26 +18,30 @@ public class ApplicationCommand {
     @Parameters(paramLabel = "FILE", description = "File to parse.")
     File inputFile = null;
 
-    @Option(names = {"-a", "--article"}, paramLabel = "ARTICLE NUMBER",
+    @Option(names = {"-a", "--article"}, paramLabel = "<article path>",
             description = "Display article or its element.\n" +
                     "Path format: <article no.>[.<element 1>[.<...>]]\n" +
                     "Example: 55.3.a")
-    String article;
+    String article = null;
 
-    @Option(names = {"-r", "--range"}, paramLabel = "ARTICLE NUMBER",
+    @Option(names = {"-r", "--range"}, paramLabel = "<article number>",
             description = "Specify end of articles range to display.")
-    String endArticle;
+    String endArticle = null;
 
-    @Option(names = {"-c", "--chapter"}, paramLabel = "IDENTIFIER",
+    @Option(names = {"-c", "--chapter"}, paramLabel = "<chapter>",
             description = "Show chapters' contents.")
-    String chapter;
+    String chapter = null;
 
-    @Option(names = {"-s", "--section"}, paramLabel = "IDENTIFIER",
+    @Option(names = {"-s", "--section"}, paramLabel = "<section>",
             description = "Show sections' contents.")
-    String section;
+    String section = null;
 
     @Option(names = {"-t", "--toc"}, description = "Show table of contents")
     Boolean tocRequested = false;
+
+//    @Option(names = {"-l", "--log-level"}, paramLabel = "<log level>",
+//            description = {"Set logging level"})
+//    Level logLevel = Level.OFF;
 
     public String[] getArticleOptionNames() {
         try {
@@ -88,5 +96,12 @@ public class ApplicationCommand {
                 ", section='" + section + '\'' +
                 ", tocRequested=" + tocRequested +
                 '}';
+    }
+
+    public enum SelectCommand {
+        ARTICLE,
+        CHAPTER,
+        SECTION,
+        TOC
     }
 }

@@ -3,13 +3,16 @@ package io.gihub.mordijc;
 import io.gihub.mordijc.container.ActElement;
 import io.gihub.mordijc.parser.ActParserSection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import static io.gihub.mordijc.parser.ActParserSection.CHAPTER;
 import static io.gihub.mordijc.parser.ActParserSection.SECTION;
 
 public class Act {
-    public final List<ActElement> articles;
+    private final List<ActElement> articles;
     private final ActElement rootElement;
 
     public Act(ActElement actElement) {
@@ -24,13 +27,13 @@ public class Act {
     private List<ActElement> getAllArticles(ActElement actElement) {
         List<ActElement> result = new ArrayList<>();
 
-        if(actElement.type == ActParserSection.ARTICLE) {
+        if (actElement.type == ActParserSection.ARTICLE) {
             result.add(actElement);
         } else {
-            for(ActElement element: actElement.getChildrenActElements()) {
-                if(element.type == ActParserSection.ARTICLE) {
+            for (ActElement element : actElement.getChildrenActElements()) {
+                if (element.type == ActParserSection.ARTICLE) {
                     result.add(element);
-                } else if(element.type.ordinal() > ActParserSection.ARTICLE.ordinal()) {
+                } else if (element.type.ordinal() < ActParserSection.ARTICLE.ordinal()) {
                     result.addAll(
                             getAllArticles(element)
                     );
@@ -42,8 +45,8 @@ public class Act {
     }
 
     public ActElement getArticleByIdentifier(String identifier) {
-        for(ActElement element: articles) {
-            if(element.identifier.equalsIgnoreCase(identifier)) {
+        for (ActElement element : articles) {
+            if (element.identifier.replaceAll("[.)]", "").equalsIgnoreCase(identifier)) {
                 return element;
             }
         }
@@ -51,22 +54,27 @@ public class Act {
         throw new NoSuchElementException(String.format("Article with identifier `%s` has not been found", identifier));
     }
 
-    public ActElement getArticleElementByIdentifier(String articleIdentifier, String[] path) {
-        ActElement result = getArticleByIdentifier(articleIdentifier);
+    public ActElement getArticleElementByIdentifier(String path) {
+        String[] pathElements = path.split("\\.");
+        ActElement result = getArticleByIdentifier(pathElements[0]);
 
-        for(String location: path) {
+        if (pathElements.length < 2) {
+            return result;
+        }
+
+        for (String location : Arrays.asList(pathElements).subList(1, pathElements.length)) {
             ActElement searchResult =
                     result.getChildrenActElements()
                             .stream()
-                            .filter(e->e.identifier.equalsIgnoreCase(location))
+                            .filter(e -> e.identifier.replaceAll("[.)]", "").equalsIgnoreCase(location))
                             .findFirst()
                             .orElse(null);
 
-            if(searchResult == null) {
+            if (searchResult == null) {
                 throw new NoSuchElementException(
                         String.format("Article `%s` does not have element under path: `%s`",
-                                articleIdentifier,
-                                String.join("/", path))
+                                pathElements[0],
+                                String.join(".", path))
                 );
             } else {
                 result = searchResult;
@@ -80,47 +88,58 @@ public class Act {
         int startIndex = -1;
         int endIndex = -1;
 
-        for(int i = 0; i < articles.size(); ++i) {
-            if(articles.get(i).identifier.equalsIgnoreCase(startArticle)) {
+        for (int i = 0; i < articles.size(); ++i) {
+            if (articles.get(i).identifier.replaceAll("[.)]", "").equalsIgnoreCase(startArticle)) {
                 startIndex = i;
-            } else if(articles.get(i).identifier.equalsIgnoreCase(endArticle)) {
+            } else if (articles.get(i).identifier.replaceAll("[.)]", "").equalsIgnoreCase(endArticle)) {
                 endIndex = i;
             }
         }
 
-        if(startIndex > endIndex) {
+        if (startIndex > endIndex) {
             throw new IndexOutOfBoundsException("Starting article cannot be greater than ending one.");
         }
 
-        if(startIndex == -1) {
+        if (startIndex == -1) {
             throw new IndexOutOfBoundsException("Starting article not found.");
         }
 
-        if(endIndex == -1) {
+        if (endIndex == -1) {
             throw new IndexOutOfBoundsException("Ending index not found.");
         }
 
 
-        return articles.subList(startIndex, endIndex);
+        return articles.subList(startIndex, endIndex+1);
     }
 
     public ActElement getChapterByIdentifier(String identifier) {
-       return findElement(rootElement, identifier, CHAPTER);
+        return findElement(rootElement, identifier, CHAPTER);
     }
 
     public ActElement getSectionByIdentifier(String identifier) {
         return findElement(rootElement, identifier, SECTION);
     }
 
-    private ActElement findElement(ActElement actElement, String identifier, ActParserSection type) {
-        ActElement root = rootElement;
+    public String getTableOfContents() {
+        return rootElement.getStringRepresentation(false);
+    }
 
-        for(ActElement element: root.getChildrenActElements()) {
-            if(element.type == type
-                    && element.identifier.equalsIgnoreCase(identifier)) {
+    public String getFillContents() {
+        return rootElement.toString();
+    }
+
+    private ActElement findElement(ActElement actElement, String identifier, ActParserSection type) {
+
+        for (ActElement element : actElement.getChildrenActElements()) {
+            if (element.type == type
+                    && element.identifier.replaceAll("[.)]", "").equalsIgnoreCase(identifier)) {
                 return element;
-            } else if(element.type.ordinal() > type.ordinal()) {
-                return findElement(element, identifier, type);
+            } else if (element.type.ordinal() <= type.ordinal()) {
+                try {
+                    return findElement(element, identifier, type);
+                } catch (NoSuchElementException ignored) {
+
+                }
             }
         }
 
