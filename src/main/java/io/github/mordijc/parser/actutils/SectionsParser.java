@@ -1,11 +1,10 @@
-package io.gihub.mordijc.parser.actutils;
+package io.github.mordijc.parser.actutils;
 
-import io.gihub.mordijc.container.ActElement;
-import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.parser.ActParserSection;
-import io.gihub.mordijc.util.Lists;
-import io.gihub.mordijc.util.Log;
-import io.gihub.mordijc.util.Regex;
+import io.github.mordijc.container.ActElement;
+import io.github.mordijc.container.ActElementBuilder;
+import io.github.mordijc.parser.ActParserSection;
+import io.github.mordijc.util.Lists;
+import io.github.mordijc.util.Regex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.gihub.mordijc.parser.ActParserSection.ARTICLE;
-import static io.gihub.mordijc.parser.ActParserSection.GENERAL_SECTIONS;
+import static io.github.mordijc.parser.ActParserSection.ARTICLE;
+import static io.github.mordijc.parser.ActParserSection.GENERAL_SECTIONS;
 
 public class SectionsParser {
     /**

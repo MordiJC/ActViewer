@@ -1,4 +1,4 @@
-package io.gihub.mordijc;
+package io.github.mordijc;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Option;

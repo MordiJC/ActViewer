@@ -1,15 +1,12 @@
-package io.gihub.mordijc;
+package io.github.mordijc;
 
-import io.gihub.mordijc.container.ActElement;
-import io.gihub.mordijc.parser.ActParserSection;
+import io.github.mordijc.container.ActElement;
+import io.github.mordijc.parser.ActParserSection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import static io.gihub.mordijc.parser.ActParserSection.CHAPTER;
-import static io.gihub.mordijc.parser.ActParserSection.SECTION;
 
 public class Act {
     private final List<ActElement> articles;
@@ -113,11 +110,11 @@ public class Act {
     }
 
     public ActElement getChapterByIdentifier(String identifier) {
-        return findElement(rootElement, identifier, CHAPTER);
+        return findElement(rootElement, identifier, ActParserSection.CHAPTER);
     }
 
     public ActElement getSectionByIdentifier(String identifier) {
-        return findElement(rootElement, identifier, SECTION);
+        return findElement(rootElement, identifier, ActParserSection.SECTION);
     }
 
     public String getTableOfContents() {

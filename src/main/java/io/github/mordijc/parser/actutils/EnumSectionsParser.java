@@ -1,11 +1,11 @@
-package io.gihub.mordijc.parser.actutils;
+package io.github.mordijc.parser.actutils;
 
-import io.gihub.mordijc.container.ActElement;
-import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.parser.ActParserSection;
-import io.gihub.mordijc.util.Lists;
-import io.gihub.mordijc.util.Regex;
-import io.gihub.mordijc.util.Strings;
+import io.github.mordijc.container.ActElement;
+import io.github.mordijc.container.ActElementBuilder;
+import io.github.mordijc.parser.ActParserSection;
+import io.github.mordijc.util.Lists;
+import io.github.mordijc.util.Regex;
+import io.github.mordijc.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.gihub.mordijc.parser.ActParserSection.ENUM_SECTIONS;
-import static io.gihub.mordijc.parser.ActParserSection.NONE;
+import static io.github.mordijc.parser.ActParserSection.ENUM_SECTIONS;
+import static io.github.mordijc.parser.ActParserSection.NONE;
 
 public class EnumSectionsParser {
     private List<String> lines;

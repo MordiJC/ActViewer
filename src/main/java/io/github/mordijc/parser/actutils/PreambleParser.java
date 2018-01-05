@@ -1,13 +1,12 @@
-package io.gihub.mordijc.parser.actutils;
+package io.github.mordijc.parser.actutils;
 
-import io.gihub.mordijc.container.ActElement;
-import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.util.Lists;
-import io.gihub.mordijc.util.Strings;
+import io.github.mordijc.container.ActElement;
+import io.github.mordijc.container.ActElementBuilder;
+import io.github.mordijc.util.Lists;
+import io.github.mordijc.util.Strings;
+import io.github.mordijc.parser.ActParserSection;
 
 import java.util.List;
-
-import static io.gihub.mordijc.parser.ActParserSection.CHAPTER;
 
 public class PreambleParser {
     private List<String> parsingTarget;
@@ -54,7 +53,7 @@ public class PreambleParser {
     private List<String> getPreamble() {
         return Lists.getFirstOfSplitIncludingDelimiterAsFirstElement(
                 parsingTarget.subList(3, parsingTarget.size()),
-                e -> e.matches(CHAPTER.pattern)
+                e -> e.matches(ActParserSection.CHAPTER.pattern)
         );
     }
 

@@ -1,9 +1,8 @@
 import org.junit.Test;
-import io.gihub.mordijc.parser.actutils.EnumSectionsParser;
+import io.github.mordijc.parser.actutils.EnumSectionsParser;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

@@ -1,12 +1,11 @@
-package io.gihub.mordijc.parser;
+package io.github.mordijc.parser;
 
-import io.gihub.mordijc.container.ActElement;
-import io.gihub.mordijc.container.ActElementBuilder;
-import io.gihub.mordijc.parser.actutils.ActPreparser;
-import io.gihub.mordijc.parser.actutils.ParsingException;
-import io.gihub.mordijc.parser.actutils.PreambleParser;
-import io.gihub.mordijc.parser.actutils.SectionsParser;
-import io.gihub.mordijc.util.Log;
+import io.github.mordijc.container.ActElement;
+import io.github.mordijc.container.ActElementBuilder;
+import io.github.mordijc.parser.actutils.ActPreparser;
+import io.github.mordijc.parser.actutils.ParsingException;
+import io.github.mordijc.parser.actutils.PreambleParser;
+import io.github.mordijc.parser.actutils.SectionsParser;
 
 import java.io.BufferedReader;
 import java.io.File;

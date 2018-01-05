@@ -13,3 +13,9 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile 'info.picocli:picocli:2.2.1'
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.mordijc.ActViewer'
+    }
+}

@@ -1,7 +1,7 @@
-package io.gihub.mordijc.parser.actutils;
+package io.github.mordijc.parser.actutils;
 
-import io.gihub.mordijc.parser.ActParserSection;
-import io.gihub.mordijc.util.Regex;
+import io.github.mordijc.parser.ActParserSection;
+import io.github.mordijc.util.Regex;
 
 import java.util.ArrayList;
 import java.util.List;

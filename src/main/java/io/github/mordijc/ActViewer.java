@@ -1,7 +1,7 @@
-package io.gihub.mordijc;
+package io.github.mordijc;
 
-import io.gihub.mordijc.parser.ActParser;
-import io.gihub.mordijc.parser.actutils.ParsingException;
+import io.github.mordijc.parser.ActParser;
+import io.github.mordijc.parser.actutils.ParsingException;
 import picocli.CommandLine;
 
 import java.util.Objects;

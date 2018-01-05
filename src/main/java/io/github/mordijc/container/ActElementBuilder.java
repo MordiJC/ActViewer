@@ -1,14 +1,12 @@
-package io.gihub.mordijc.container;
+package io.github.mordijc.container;
 
-import io.gihub.mordijc.parser.ActParserSection;
+import io.github.mordijc.parser.ActParserSection;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.gihub.mordijc.parser.ActParserSection.TEXT;
-
 public class ActElementBuilder {
-    private ActParserSection type = TEXT;
+    private ActParserSection type = ActParserSection.TEXT;
     private String title = "";
     private String identifier = "";
     private String typeName = "";

@@ -1,8 +1,7 @@
-package io.gihub.mordijc.container;
+package io.github.mordijc.container;
 
-import io.gihub.mordijc.parser.ActParserSection;
-import io.gihub.mordijc.util.Regex;
-import javafx.css.Match;
+import io.github.mordijc.parser.ActParserSection;
+import io.github.mordijc.util.Regex;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,8 +9,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static io.gihub.mordijc.parser.ActParserSection.TEXT;
 
 /**
  * Basic interface used as io.gihub.mordijc.container for title, act section content and its sub-sections.
@@ -58,7 +55,7 @@ public class ActElement {
      * This instance type should be used only as root element.
      */
     public ActElement() {
-        this(TEXT,"", "", "", "", "");
+        this(ActParserSection.TEXT,"", "", "", "", "");
     }
 
     /**

@@ -1,21 +1,22 @@
-import io.gihub.mordijc.Act;
+import io.github.mordijc.Act;
 import org.junit.Test;
-import io.gihub.mordijc.parser.ActParser;
-import io.gihub.mordijc.parser.actutils.ActPreparser;
-import io.gihub.mordijc.parser.actutils.PreambleParser;
+import io.github.mordijc.parser.ActParser;
+import io.github.mordijc.parser.actutils.ActPreparser;
+import io.github.mordijc.parser.actutils.PreambleParser;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ActParserTest {
 
     @Test
     public void constitutionParsingManualTest() {
-        File constitution = new File(getClass().getClassLoader().getResource("konstytucja.txt").getFile());
+        File constitution = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("konstytucja.txt")).getFile());
 
         ActParser parser = new ActParser();
 
@@ -24,7 +25,7 @@ public class ActParserTest {
 
     @Test
     public void uokikParsingManualTest(){
-        File uokik = new File(getClass().getClassLoader().getResource("uokik.txt").getFile());
+        File uokik = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("uokik.txt")).getFile());
 
         assert uokik.exists();
 
@@ -41,7 +42,7 @@ public class ActParserTest {
 
     @Test
     public void constitutionPreparsingManualTest() throws FileNotFoundException {
-        File constitution = new File(getClass().getClassLoader().getResource("konstytucja.txt").getFile());
+        File constitution = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("konstytucja.txt")).getFile());
         FileReader fileReader = new FileReader(constitution);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
@@ -53,7 +54,7 @@ public class ActParserTest {
 
     @Test
     public void preambleParserManualTest() throws FileNotFoundException {
-        File constitution = new File(getClass().getClassLoader().getResource("konstytucja.txt").getFile());
+        File constitution = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("konstytucja.txt")).getFile());
         FileReader fileReader = new FileReader(constitution);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
