@@ -4,6 +4,7 @@ import io.github.mordijc.parser.ActParser;
 import io.github.mordijc.parser.actutils.ParsingException;
 import picocli.CommandLine;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class ActViewer {
                     break;
             }
 
-        } catch (CommandLine.PicocliException | IllegalArgumentException | ParsingException e) {
+        } catch (CommandLine.PicocliException | IllegalArgumentException | ParsingException | NoSuchElementException e) {
             System.err.println(e.getMessage());
             CommandLine.usage(new ApplicationCommand(), System.err, CommandLine.Help.Ansi.ON);
         }
