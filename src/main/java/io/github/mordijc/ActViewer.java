@@ -19,7 +19,7 @@ public class ActViewer {
             commandLine.parse(args);
 
             if (commandLine.isUsageHelpRequested()) {
-                commandLine.usage(System.out, CommandLine.Help.Ansi.ON);
+                commandLine.usage(System.out, CommandLine.Help.Ansi.AUTO);
                 return;
             }
 
